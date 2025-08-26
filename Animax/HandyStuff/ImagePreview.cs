@@ -1,0 +1,76 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+
+namespace Animax
+{
+    public class ImagePreview : ToolStripMenuItem
+    {
+        public ImageResource ImageResource { get; set; }
+        public Image PreviewImage = new Bitmap(1, 1);
+        public string FilePath;
+        public ImagePreview()
+        {
+            this.Text = "";
+            this.FilePath = "";
+            
+        }
+        public ImagePreview(ImageResource resource)
+        {
+            this.ImageResource = resource;
+            this.Text = new string(' ', 75);
+            this.AutoSize = false;
+            this.Width = 300;
+            this.Height = 80;
+
+            if (resource != null)
+            {
+                this.FilePath = resource?.FilePath;
+                PreviewImage = Image.FromFile(resource.FilePath);
+                if (PreviewImage.Width > 64 || PreviewImage.Height > 64)
+                {
+                    var ratio = Math.Min(64f / PreviewImage.Width, 64f / PreviewImage.Height);
+                    var newWidth = (int)(PreviewImage.Width * ratio);
+                    var newHeight = (int)(PreviewImage.Height * ratio);
+                    PreviewImage = new Bitmap(PreviewImage, newWidth, newHeight);
+                }
+            }
+            else
+            {
+                this.FilePath = "";
+                PreviewImage = new Bitmap(1, 1);
+            }
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            e.Graphics.FillRectangle(Selected ? SystemBrushes.Highlight : Brushes.White, e.ClipRectangle);
+
+            Rectangle imageRect = new Rectangle(5, 5, 64, 64);
+            if (PreviewImage != null)
+            {
+                e.Graphics.DrawImage(PreviewImage, imageRect);
+            }
+
+            string[] parts = FilePath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lastParts = parts.Skip(Math.Max(0, parts.Length - 5)).ToArray();
+
+            using (Brush brush = new SolidBrush(Selected ? Color.White : Color.Black))
+            {
+                string text = string.Join("/", lastParts);
+                Rectangle textBound = new Rectangle(e.ClipRectangle.X, e.ClipRectangle.Y, e.ClipRectangle.Width, e.ClipRectangle.Height);
+                textBound.X += imageRect.Width;
+                textBound.Width -= imageRect.Width;
+                StringFormat format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.None };
+                e.Graphics.DrawString(text, this.Font, brush, textBound, format);
+            }
+        }
+
+    }
+}
