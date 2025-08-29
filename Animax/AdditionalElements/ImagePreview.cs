@@ -10,11 +10,16 @@ using System.IO;
 
 namespace Animax
 {
-    public class ImagePreview : ToolStripMenuItem
+    public class ImagePreview : UserControl
     {
         public ImageResource ImageResource { get; set; }
         public Image PreviewImage = new Bitmap(1, 1);
         public string FilePath;
+        public bool isSelected { get; set; }
+
+
+        public event Action<ImagePreview> clicked;
+
         public ImagePreview()
         {
             this.Text = "";
@@ -32,13 +37,16 @@ namespace Animax
             if (resource != null)
             {
                 this.FilePath = resource?.FilePath;
-                PreviewImage = Image.FromFile(resource.FilePath);
-                if (PreviewImage.Width > 64 || PreviewImage.Height > 64)
+                if (File.Exists(resource.FilePath))
                 {
-                    var ratio = Math.Min(64f / PreviewImage.Width, 64f / PreviewImage.Height);
-                    var newWidth = (int)(PreviewImage.Width * ratio);
-                    var newHeight = (int)(PreviewImage.Height * ratio);
-                    PreviewImage = new Bitmap(PreviewImage, newWidth, newHeight);
+                    PreviewImage = Image.FromFile(resource.FilePath);
+                    if (PreviewImage.Width > 64 || PreviewImage.Height > 64)
+                    {
+                        var ratio = Math.Min(64f / PreviewImage.Width, 64f / PreviewImage.Height);
+                        var newWidth = (int)(PreviewImage.Width * ratio);
+                        var newHeight = (int)(PreviewImage.Height * ratio);
+                        PreviewImage = new Bitmap(PreviewImage, newWidth, newHeight);
+                    }
                 }
             }
             else
@@ -46,13 +54,23 @@ namespace Animax
                 this.FilePath = "";
                 PreviewImage = new Bitmap(1, 1);
             }
+
+            MouseDown += (s, e) =>
+            {
+                clicked.Invoke(this);
+            };
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(Selected ? SystemBrushes.Highlight : Brushes.White, e.ClipRectangle);
+            e.Graphics.FillRectangle(isSelected ? SystemBrushes.Highlight : Brushes.White, e.ClipRectangle);
 
             Rectangle imageRect = new Rectangle(5, 5, 64, 64);
+
+            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
+
             if (PreviewImage != null)
             {
                 e.Graphics.DrawImage(PreviewImage, imageRect);
@@ -61,7 +79,7 @@ namespace Animax
             string[] parts = FilePath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
             string[] lastParts = parts.Skip(Math.Max(0, parts.Length - 5)).ToArray();
 
-            using (Brush brush = new SolidBrush(Selected ? Color.White : Color.Black))
+            using (Brush brush = new SolidBrush(isSelected? Color.White : Color.Black))
             {
                 string text = string.Join("/", lastParts);
                 Rectangle textBound = new Rectangle(e.ClipRectangle.X, e.ClipRectangle.Y, e.ClipRectangle.Width, e.ClipRectangle.Height);

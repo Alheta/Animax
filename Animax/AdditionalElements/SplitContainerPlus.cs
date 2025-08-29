@@ -26,11 +26,9 @@ namespace Animax
 
         private void RefreshChildControls(Control parent)
         {
-            parent.Refresh();
             parent.Invalidate();
             foreach (Control control in parent.Controls)
             {
-                control.Refresh();
                 control.Invalidate();
                 if (control.HasChildren)
                 {

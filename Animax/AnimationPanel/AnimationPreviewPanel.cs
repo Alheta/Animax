@@ -68,8 +68,6 @@ namespace Animax
             e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
             e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
-            e.Graphics.Clear(Color.LightGray);
-
             DrawGrid(e.Graphics, true);
             DrawGlobalCross(e.Graphics);
 
@@ -87,30 +85,58 @@ namespace Animax
 
             foreach (var frame in _mediator.framePanel.currentFrames)
             {
-                if (frame.Key.isVisible && frame.Value != null && frame.Value.imagePreview.savedImage != null && frame.Value.visible)
+                //if (frame.Value.type == FrameType.NORMAL)
+                if (frame.Key.isVisible && frame.Value != null)
                 {
                     GraphicsState frameState = e.Graphics.Save();
-                    e.Graphics.TranslateTransform(
-                        frame.Value.position.X,
-                        -frame.Value.position.Y);
+                    if (frame.Value.type == FrameType.NORMAL)
+                    {
+                        var frm = (NormalFrame)frame.Value;
+                        if (frm.imagePreview.savedImage != null && frm.visible)
+                        {
+                            e.Graphics.TranslateTransform(
+                                frm.position.X,
+                                -frm.position.Y);
 
-                    e.Graphics.RotateTransform(frame.Value.rotation);
+                            e.Graphics.RotateTransform(frm.rotation);
 
-                    float scaleX = frame.Value.scale.X / 100f;
-                    float scaleY = frame.Value.scale.Y / 100f;
-                    e.Graphics.ScaleTransform(
-                        scaleX == 0 ? 0.01f : scaleX,
-                        scaleY == 0 ? 0.01f : scaleY);
+                            float scaleX = frm.scale.X / 100f;
+                            float scaleY = frm.scale.Y / 100f;
+                            e.Graphics.ScaleTransform(
+                                scaleX == 0 ? 0.01f : scaleX,
+                                scaleY == 0 ? 0.01f : scaleY);
 
-                    e.Graphics.TranslateTransform(
-                        frame.Value.imagePreview.relativePivot.X,
-                        frame.Value.imagePreview.relativePivot.Y);
+                            e.Graphics.TranslateTransform(
+                                frm.imagePreview.relativePivot.X,
+                                frm.imagePreview.relativePivot.Y);
 
-                    e.Graphics.DrawImage(
-                        frame.Value.imagePreview.savedImage,
-                        0, 0,
-                        frame.Value.imagePreview.savedImage.Width,
-                        frame.Value.imagePreview.savedImage.Height);
+                            e.Graphics.DrawImage(
+                                frm.imagePreview.savedImage,
+                                0, 0,
+                                frm.imagePreview.savedImage.Width,
+                                frm.imagePreview.savedImage.Height);
+                        }
+                    }
+                    else if (frame.Value.type == FrameType.POINT)
+                    {
+                        var frm = (PointFrame)frame.Value;
+                        if (frm.visible)
+                        {
+                            e.Graphics.TranslateTransform(
+                             frm.position.X,
+                             -frm.position.Y);
+
+                            e.Graphics.RotateTransform(frm.rotation);
+
+                            float scaleX = frm.scale.X / 100f;
+                            float scaleY = frm.scale.Y / 100f;
+                            e.Graphics.ScaleTransform(
+                                scaleX == 0 ? 0.01f : scaleX,
+                                scaleY == 0 ? 0.01f : scaleY);
+
+                            e.Graphics.DrawEllipse(new Pen(Brushes.Lime, 5f) , new RectangleF(0 - frm.scale.X / 2, 0 - frm.scale.Y / 2, frm.scale.X, frm.scale.Y));
+                        }
+                    }
                     e.Graphics.Restore(frameState);
                 }
             }

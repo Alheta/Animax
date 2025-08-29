@@ -11,7 +11,7 @@ namespace Animax
         public Rectangle selection;
         public PointF pivot;
         private Point imageOffset = Point.Empty;
-        private Frame selectedFrame;
+        private NormalFrame selectedFrame;
 
         private float zoom = 5f;
 
@@ -26,7 +26,7 @@ namespace Animax
         private Point moveOffset;
         private PointF pivotOffset;
 
-        public event Action<Frame> SelectionChanged;
+        public event Action<NormalFrame> SelectionChanged;
 
         private resizeHandleType activeHandle = resizeHandleType.None;
         private enum resizeHandleType { None, TopLeft, TopRight, BottomLeft, BottomRight }
@@ -41,7 +41,7 @@ namespace Animax
             this.MouseWheel += OnMouseWheel;
         }
 
-        public void SetSpriteSheet(Image image, Frame frame)
+        public void SetSpriteSheet(Image image, NormalFrame frame)
         {
             this.spriteSheet = image;
             this.selection = frame.selection;

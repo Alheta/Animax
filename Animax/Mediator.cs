@@ -9,6 +9,7 @@ using System.Windows.Forms.PropertyGridInternal;
 using System.Globalization;
 using Animax.HandyStuff;
 using System.IO;
+using Animax.AdditionalElements;
 
 namespace Animax
 {
@@ -23,13 +24,13 @@ namespace Animax
         public SpriteSheetPanel spritePanel { get; set; }
         public InstrumentPanel instPanel { get; set; }
         public TimelineMarker marker { get; set; }
-        public PropertiesTab propers { get; set; }
-
+        public FramePropertiesPanel propers { get; set; }
         public ComboBox eventsBox { get; set; }
-
         public Main mainForm { get; set; }
-
         public ColorManager clrManager { get; set; }
+
+        public ImagePreviewPanel imagePanel = new ImagePreviewPanel();
+
         public void OnFrameSelectionUpdate(TimelineFramePanel panel)
         {
             spritePanel?.ClearSpriteSheet();
@@ -53,8 +54,20 @@ namespace Animax
                 Image imgToLoad = projectManager.GetLayerImage(layerItem.layer);
 
                 marker.frameIndex = framePanel.GetFrameIndex(frameItem);
-                spritePanel?.SetSpriteSheet(imgToLoad, frameItem.frame);
-                UpdateProperties(frameItem.frame, true);
+
+                if (frameItem.frame.type == FrameType.NORMAL)
+                {
+                    UpdateProperties((NormalFrame)frameItem.frame);
+                    spritePanel?.SetSpriteSheet(imgToLoad, (NormalFrame)frameItem.frame);
+                    propers.ChangeMode(FramePropertiesPanel.Mode.BOTH);
+                }
+                else if (frameItem.frame.type == FrameType.POINT)
+                {
+                    UpdateProperties((PointFrame)frameItem.frame);
+                    propers.ChangeMode(FramePropertiesPanel.Mode.FRAME);
+                }
+                else if (frameItem.frame.type == FrameType.EVENT)
+                    propers.ChangeMode(FramePropertiesPanel.Mode.NONE);
             }
             marker.Invalidate();
         }
@@ -85,41 +98,38 @@ namespace Animax
         }
 
         private bool _editText = false;
-        public void UpdateProperties(Frame frame, bool updateFrameProps)
+        public void UpdateProperties(NormalFrame frame)
         {
             _editText = true;
-            propers.x.Text = frame.selection.X.ToString();
-            propers.y.Text = frame.selection.Y.ToString();
-            propers.width.Text = frame.selection.Width.ToString();
-            propers.height.Text = frame.selection.Height.ToString();
+            propers.elements.x.Text = frame.selection.X.ToString();
+            propers.elements.y.Text = frame.selection.Y.ToString();
+            propers.elements.width.Text = frame.selection.Width.ToString();
+            propers.elements.height.Text = frame.selection.Height.ToString();
 
-            propers.pivotX.Text = frame.pivotPos.X.ToString();
-            propers.pivotY.Text = frame.pivotPos.Y.ToString();
+            propers.elements.pivotX.Text = frame.pivotPos.X.ToString();
+            propers.elements.pivotY.Text = frame.pivotPos.Y.ToString();
 
-            if (updateFrameProps)
-            {
-                propers.posX.Text = frame.position.X.ToString();
-                propers.posY.Text = frame.position.Y.ToString();
-                propers.scaleX.Text = frame.scale.X.ToString();
-                propers.scaleY.Text = frame.scale.Y.ToString();
-                propers.rotation.Text = frame.rotation.ToString();
-                propers.visibility.Checked = frame.visible;
-                propers.interpolated.Checked = frame.interpolated;
-            }
+            propers.elements.posX.Text = frame.position.X.ToString();
+            propers.elements.posY.Text = frame.position.Y.ToString();
+            propers.elements.scaleX.Text = frame.scale.X.ToString();
+            propers.elements.scaleY.Text = frame.scale.Y.ToString();
+            propers.elements.rotation.Text = frame.rotation.ToString();
+            propers.elements.visibility.Checked = frame.visible;
+            propers.elements.interpolated.Checked = frame.interpolated;
 
             animPreview.Invalidate();
             _editText = false;
         }
-        public void UpdateProperties(Frame frame)
+        public void UpdateProperties(PointFrame frame)
         {
             _editText = true;
-            propers.x.Text = frame.selection.X.ToString();
-            propers.y.Text = frame.selection.Y.ToString();
-            propers.width.Text = frame.selection.Width.ToString();
-            propers.height.Text = frame.selection.Height.ToString();
-
-            propers.pivotX.Text = frame.pivotPos.X.ToString();
-            propers.pivotY.Text = frame.pivotPos.Y.ToString();
+            propers.elements.posX.Text = frame.position.X.ToString();
+            propers.elements.posY.Text = frame.position.Y.ToString();
+            propers.elements.scaleX.Text = frame.scale.X.ToString();
+            propers.elements.scaleY.Text = frame.scale.Y.ToString();
+            propers.elements.rotation.Text = frame.rotation.ToString();
+            propers.elements.visibility.Checked = frame.visible;
+            propers.elements.interpolated.Checked = frame.interpolated;
 
             animPreview.Invalidate();
             _editText = false;
@@ -138,27 +148,52 @@ namespace Animax
 
                 spritePanel.UpdateSelection(new SpriteSheetProperties
                 {
-                    X = SafeParseInt(propers.x.Text),
-                    Y = SafeParseInt(propers.y.Text),
-                    Width = SafeParseInt(propers.width.Text, 1, -4096, 4096),
-                    Height = SafeParseInt(propers.height.Text, 1, -4096, 4096),
-                    PivotX = SafeParseInt(propers.pivotX.Text),
-                    PivotY = SafeParseInt(propers.pivotY.Text)
+                    X = SafeParseInt(propers.elements.x.Text),
+                    Y = SafeParseInt(propers.elements.y.Text),
+                    Width = SafeParseInt(propers.elements.width.Text, 1, -4096, 4096),
+                    Height = SafeParseInt(propers.elements.height.Text, 1, -4096, 4096),
+                    PivotX = SafeParseInt(propers.elements.pivotX.Text),
+                    PivotY = SafeParseInt(propers.elements.pivotY.Text)
                 });
 
                 if (framePanel?.selectedItem != null)
                 {
-                    framePanel.selectedItem.frame.position = new PointF(SafeParseInt(propers.posX.Text), SafeParseInt(propers.posY.Text));
-                    framePanel.selectedItem.frame.rotation = SafeParseInt(propers.rotation.Text);
-                    framePanel.selectedItem.frame.scale = new Point(
-                        SafeParseInt(propers.scaleX.Text, 100, -1000, 1000),
-                        SafeParseInt(propers.scaleY.Text, 100, -1000, 1000)
-                    );
+                    if (framePanel.selectedItem.frame.type != FrameType.EVENT)
+                    {
+                        //Im too lazy to make this code more compact, so it'll just be two same instances of code :p
+                        //Maybe layer idk
+                        if (framePanel.selectedItem.frame.type == FrameType.NORMAL)
+                        {
+                            var frame = (NormalFrame)framePanel.selectedItem.frame;
 
-                    framePanel.selectedItem.frame.visible = propers.visibility.Checked;
-                    framePanel.selectedItem.frame.interpolated = propers.interpolated.Checked;
+                            frame.position = new PointF(SafeParseInt(propers.elements.posX.Text), SafeParseInt(propers.elements.posY.Text));
+                            frame.rotation = SafeParseInt(propers.elements.rotation.Text);
+                            frame.scale = new Point(
+                                SafeParseInt(propers.elements.scaleX.Text, 100, -1000, 1000),
+                                SafeParseInt(propers.elements.scaleY.Text, 100, -1000, 1000)
+                            );
 
-                    animPanel.Invalidate();
+                            frame.visible = propers.elements.visibility.Checked;
+                            frame.interpolated = propers.elements.interpolated.Checked;
+                        }
+
+                        else if (framePanel.selectedItem.frame.type == FrameType.POINT)
+                        {
+                            var frame = (PointFrame)framePanel.selectedItem.frame;
+
+                            frame.position = new PointF(SafeParseInt(propers.elements.posX.Text), SafeParseInt(propers.elements.posY.Text));
+                            frame.rotation = SafeParseInt(propers.elements.rotation.Text);
+                            frame.scale = new Point(
+                                SafeParseInt(propers.elements.scaleX.Text, 100, -1000, 1000),
+                                SafeParseInt(propers.elements.scaleY.Text, 100, -1000, 1000)
+                            );
+
+                            frame.visible = propers.elements.visibility.Checked;
+                            frame.interpolated = propers.elements.interpolated.Checked;
+                        }
+
+                        animPanel.Invalidate();
+                    }
                 }
 
                 MarkProjectModified();
@@ -215,6 +250,12 @@ namespace Animax
             layerAdd.Show();
         }
 
+        public void OpenImageManager()
+        {
+            ImageForm imgPan = new ImageForm(this);
+            imgPan.Show();
+        }
+
         public void RemoveAllEventFrames(FrameEvent ev)
         {
             foreach (Animation anim in mainForm.animations)
@@ -223,7 +264,7 @@ namespace Animax
                 {
                     foreach (Frame frm in lyr.frames)
                     {
-                        if (frm.type == LayerType.EVENT && frm.frameEvent.eventName == ev.eventName)
+                        if (frm.type == FrameType.EVENT)
                         {
                             lyr.frames.Remove(frm);
                             layerPanel.UpdateLayers(anim);

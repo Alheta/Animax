@@ -1,50 +1,26 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\",
+  "WorkspaceRootPath": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\animax\\animax\\handystuff\\spritesheetpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\handystuff\\spritesheetpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\p\\animax\\animax\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|solutionrelative:animax\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\animax\\animax\\projectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\projectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\p\\animax\\animax\\imageform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|solutionrelative:animax\\imageform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\animax\\animax\\animation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\animation.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\p\\animax\\animax\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|solutionrelative:animax\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\animax\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\p\\animax\\animax\\imageform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|solutionrelative:animax\\imageform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\animax\\layeradd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\layeradd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\animax\\mediator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\mediator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\animax\\timeline\\timelinemarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\timeline\\timelinemarker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\animax\\animax\\animationpanel\\animationpreviewpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\animationpanel\\animationpreviewpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\animax\\animax\\handystuff\\imagepreview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\handystuff\\imagepreview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\animax\\timeline\\timelineframeitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\timeline\\timelineframeitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\animax\\handystuff\\colormanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B671A912-AAE8-418A-B383-4BA8FDF54044}|Animax\\Animax.csproj|solutionrelative:animax\\handystuff\\colormanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|c:\\users\\artem\\desktop\\\u043F\u0440\u043E\u0435\u043A\u0442\u044B\\p\\animax\\animax\\layeradd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{674BE2FC-A119-4D99-95AC-0035B41AE95D}|Animax\\Animax.csproj|solutionrelative:animax\\layeradd.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -53,166 +29,79 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedHeight": 242,
-          "SelectedChildIndex": 1,
+          "DockedHeight": 244,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Main.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Main.cs",
-              "RelativeDocumentMoniker": "Animax\\Main.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Main.cs",
-              "RelativeToolTip": "Animax\\Main.cs",
-              "ViewState": "AgIAABwBAAAAAAAAAAAgwDEBAABBAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-24T20:27:00.022Z",
-              "IsPinned": true,
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "SpriteSheetPanel.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\HandyStuff\\SpriteSheetPanel.cs",
-              "RelativeDocumentMoniker": "Animax\\HandyStuff\\SpriteSheetPanel.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\HandyStuff\\SpriteSheetPanel.cs",
-              "RelativeToolTip": "Animax\\HandyStuff\\SpriteSheetPanel.cs",
-              "ViewState": "AgIAAFAAAAAAAAAAAAAUwGMAAAAJAAAAAAAAAA==",
+              "Title": "Main.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\Main.cs",
+              "RelativeDocumentMoniker": "Animax\\Main.cs",
+              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\Main.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "RelativeToolTip": "Animax\\Main.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T14:17:31.218Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-29T14:07:45.889Z",
+              "EditorCaption": " [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "AnimationPreviewPanel.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\AnimationPanel\\AnimationPreviewPanel.cs",
-              "RelativeDocumentMoniker": "Animax\\AnimationPanel\\AnimationPreviewPanel.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\AnimationPanel\\AnimationPreviewPanel.cs",
-              "RelativeToolTip": "Animax\\AnimationPanel\\AnimationPreviewPanel.cs",
-              "ViewState": "AgIAAEMAAAAAAAAAAAAcwHIAAAARAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "ImageForm.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\ImageForm.cs",
+              "RelativeDocumentMoniker": "Animax\\ImageForm.cs",
+              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\ImageForm.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
+              "RelativeToolTip": "Animax\\ImageForm.cs [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T14:03:02.027Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-29T14:07:17.805Z",
+              "EditorCaption": " [\u041A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u043E\u0440]"
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "Animation.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Animation.cs",
-              "RelativeDocumentMoniker": "Animax\\Animation.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Animation.cs",
-              "RelativeToolTip": "Animax\\Animation.cs",
-              "ViewState": "AgIAAI8AAAAAAAAAAAAcwGwAAAAeAAAAAAAAAA==",
+              "Title": "Main.cs",
+              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\Main.cs",
+              "RelativeDocumentMoniker": "Animax\\Main.cs",
+              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\Main.cs",
+              "RelativeToolTip": "Animax\\Main.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T12:17:12.794Z",
+              "WhenOpened": "2025-08-29T14:07:03.685Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ImageForm.cs",
+              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\ImageForm.cs",
+              "RelativeDocumentMoniker": "Animax\\ImageForm.cs",
+              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\ImageForm.cs",
+              "RelativeToolTip": "Animax\\ImageForm.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-08-29T14:07:01.08Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
               "Title": "LayerAdd.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\LayerAdd.cs",
+              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\LayerAdd.cs",
               "RelativeDocumentMoniker": "Animax\\LayerAdd.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\LayerAdd.cs",
+              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\P\\Animax\\Animax\\LayerAdd.cs",
               "RelativeToolTip": "Animax\\LayerAdd.cs",
-              "ViewState": "AgIAAEQAAAAAAAAAAAAqwFwAAAA6AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-24T17:34:10.441Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "Mediator.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Mediator.cs",
-              "RelativeDocumentMoniker": "Animax\\Mediator.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Mediator.cs",
-              "RelativeToolTip": "Animax\\Mediator.cs",
-              "ViewState": "AgIAAPEAAAAAAAAAAAAYwP4AAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-24T16:55:58.064Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "TimelineFrameItem.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Timeline\\TimelineFrameItem.cs",
-              "RelativeDocumentMoniker": "Animax\\Timeline\\TimelineFrameItem.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Timeline\\TimelineFrameItem.cs",
-              "RelativeToolTip": "Animax\\Timeline\\TimelineFrameItem.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAA1wBUAAAAiAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-24T17:01:37.936Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "ColorManager.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\HandyStuff\\ColorManager.cs",
-              "RelativeDocumentMoniker": "Animax\\HandyStuff\\ColorManager.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\HandyStuff\\ColorManager.cs",
-              "RelativeToolTip": "Animax\\HandyStuff\\ColorManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABoAAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-24T16:52:16.044Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "TimelineMarker.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Timeline\\TimelineMarker.cs",
-              "RelativeDocumentMoniker": "Animax\\Timeline\\TimelineMarker.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\Timeline\\TimelineMarker.cs",
-              "RelativeToolTip": "Animax\\Timeline\\TimelineMarker.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-24T22:30:30.7Z",
+              "WhenOpened": "2025-08-29T14:06:43.811Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ProjectManager.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\ProjectManager.cs",
-              "RelativeDocumentMoniker": "Animax\\ProjectManager.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\ProjectManager.cs",
-              "RelativeToolTip": "Animax\\ProjectManager.cs",
-              "ViewState": "AgIAAJAAAAAAAAAAAAAjwKQAAAAlAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T07:49:45.033Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "ImagePreview.cs",
-              "DocumentMoniker": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\HandyStuff\\ImagePreview.cs",
-              "RelativeDocumentMoniker": "Animax\\HandyStuff\\ImagePreview.cs",
-              "ToolTip": "C:\\Users\\Artem\\Desktop\\\u041F\u0440\u043E\u0435\u043A\u0442\u044B\\Animax\\Animax\\HandyStuff\\ImagePreview.cs",
-              "RelativeToolTip": "Animax\\HandyStuff\\ImagePreview.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAAA4AAAAxAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-08-26T12:49:13.226Z",
-              "EditorCaption": ""
-            }
-          ]
-        },
-        {
-          "DockedHeight": 74,
-          "SelectedChildIndex": -1,
-          "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
             }
           ]
         }

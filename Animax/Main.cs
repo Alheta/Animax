@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Animax.HandyStuff;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,9 +16,7 @@ namespace Animax
         public List<Animation> animations = new List<Animation>();
         public List<FrameEvent> events = new List<FrameEvent>();
 
-        private ToolStripMenuItem imageMenu = new ToolStripMenuItem("Image");
-        private ToolStripMenuItem addImageMenuItem = new ToolStripMenuItem("AddImage");
-        private ToolStripMenuItem loadedImagesMenuItem = new ToolStripMenuItem("Loaded Images");
+        private ToolStripMenuItem imageMenu = new ToolStripMenuItem("Images");
 
         private ToolStripMenuItem fileMenu = new ToolStripMenuItem("File");
         private ToolStripMenuItem newProjectItem = new ToolStripMenuItem("New");
@@ -33,14 +32,15 @@ namespace Animax
         public Main()
         {
             InitializeComponent();
-
-            projectManager = new ProjectManager();
+            this.IsMdiContainer = true;
 
             //Setting up mediator
             _mediator = new Mediator();
 
-            _mediator.projectManager = projectManager;
+            projectManager = new ProjectManager();
+            FramePropertiesPanel framePropertiesPanel1 = new FramePropertiesPanel(_mediator);
 
+            _mediator.projectManager = projectManager;
             _mediator.framePanel = timelineFramePanel1;
             _mediator.layerPanel = timelineLayerPanel1;
             _mediator.spritePanel = spriteSheetPanel1;
@@ -48,22 +48,7 @@ namespace Animax
             _mediator.animPanel = animationPanel1;
             _mediator.instPanel = instrumentPanel1;
             _mediator.marker = new TimelineMarker(_mediator);
-            _mediator.propers = new PropertiesTab
-            {
-                x = textBoxX,
-                y = textBoxY,
-                width = textBoxWidth,
-                height = textBoxHeight,
-                pivotX = textBoxPivotX,
-                pivotY = textBoxPivotY,
-                posX = textBoxPosX,
-                posY = textBoxPosY,
-                scaleX = textBoxScaleX,
-                scaleY = textBoxScaleY,
-                rotation = textBoxRotation,
-                visibility = checkBoxVis,
-                interpolated = checkBoxInterp
-            };
+            _mediator.propers = framePropertiesPanel1;
             _mediator.eventsBox = comboBox1;
             _mediator.mainForm = this;
             _mediator.clrManager = new HandyStuff.ColorManager();
@@ -73,8 +58,10 @@ namespace Animax
             timelineLayerPanel1._mediator = _mediator;
             animationPanel1._mediator = _mediator;
             projectManager._mediator = _mediator;
-
             animationPreviewPanel1._mediator = _mediator;
+
+            spriteSheetPanel1.Controls.Add(framePropertiesPanel1);
+            framePropertiesPanel1.Dock = DockStyle.Right;
 
             events = new List<FrameEvent>();
             comboBox1.DataSource = events;
@@ -88,7 +75,6 @@ namespace Animax
         {
             this.Text = "ANIMAX";
 
-            openFileDialog1.Filter = "Image Files|*.png;*.jpg;*.jpeg;*.bmp";
             menuStrip1.Font = new Font("Segoe UI", 10);
 
             fileMenu.DropDownItems.Add(newProjectItem);
@@ -99,18 +85,13 @@ namespace Animax
             fileMenu.DropDownItems.Add(new ToolStripSeparator());
             fileMenu.DropDownItems.Add(exitItem);
 
-            imageMenu.DropDownItems.Add(addImageMenuItem);
-            imageMenu.DropDownItems.Add(new ToolStripSeparator());
-            imageMenu.DropDownItems.Add(loadedImagesMenuItem);
-            imageMenu.DropDownOpening += OpenLoadedImagesDialog;
+            imageMenu.Click += openImageFrom_Click;
 
             newProjectItem.Click += newMenuItem_Click;
             openProjectItem.Click += openMenuItem_Click;
             saveProjectItem.Click += SaveProjectMenuItem_Click;
             saveProjectAsItem.Click += SaveAsProjectMenuItem_Click;
             exitItem.Click += ExitMenuItem_Click;
-
-            addImageMenuItem.Click += AddImageMenuItem_Click;
 
             menuStrip1.Items.Add(fileMenu);
             menuStrip1.Items.Add(imageMenu);
@@ -125,17 +106,6 @@ namespace Animax
 
             //Spritesheet
             spriteSheetPanel1.SelectionChanged += _mediator.UpdateProperties;
-
-            //Properties fields
-            var propertiesTextBoxes = panelProperties.Controls.OfType<TextBox>().ToList();
-            var propertiesCheckBoxes = panelProperties.Controls.OfType<CheckBox>().ToList();
-            foreach (TextBox txt in propertiesTextBoxes)
-            {
-                txt.KeyPress += propertiesFields_KeyPress;
-                txt.TextChanged += _mediator.UpdateValuesFromTextBoxes;
-            }
-            foreach (CheckBox chk in propertiesCheckBoxes)
-                chk.CheckedChanged += _mediator.UpdateValuesFromTextBoxes;
 
             playButton.Click += button1_Click;
         }
@@ -182,17 +152,6 @@ namespace Animax
                 _mediator.instPanel.SelectInstrument(HandyStuff.Instrument.MOVE);
             }
             return base.ProcessCmdKey(ref msg, keyData);
-        }
-
-        private void propertiesFields_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            TextBox txt = (TextBox)sender;
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) &&
-                !(e.KeyChar == '-' && txt.SelectionStart == 0 && !txt.Text.Contains("-")) &&
-                !(e.KeyChar == '.' && !txt.Text.Contains(".")))
-            {
-                e.Handled = true;
-            }
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -259,29 +218,11 @@ namespace Animax
                 }
             }
         }
-
-
-        private void AddImageMenuItem_Click(object sender, EventArgs e)
+        private void openImageFrom_Click(object sender, EventArgs e)
         {
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                foreach (string file in openFileDialog1.FileNames)
-                {
-                    ImageResource imgRes = new ImageResource(file);
-                    projectManager.currentProject.images.Add(imgRes);
-                    imgRes.Index = projectManager.currentProject.images.IndexOf(imgRes);
-                }
-            }
+            _mediator.OpenImageManager();
         }
 
-        private void OpenLoadedImagesDialog(object sender, EventArgs e)
-        {
-            loadedImagesMenuItem.DropDownItems.Clear();
-            foreach (ImageResource img in projectManager.currentProject.images)
-            {
-                loadedImagesMenuItem.DropDownItems.Add(new ImagePreview(img));
-            }
-        }
 
         private void newMenuItem_Click(object sender, EventArgs e)
         {

@@ -179,31 +179,36 @@ namespace Animax
             if (layer == null)
                 return;
 
-            Frame frame;
-            if (layer.layer.type != LayerType.EVENT)
+            Frame frame = layer.layer.type switch
             {
-                frame = new Frame(layer.layer, 1)
+                LayerType.NORMAL => new NormalFrame(1)
                 {
                     selection = new Rectangle(0, 0, 32, 32),
                     pivotPos = new PointF(0, 0),
-                    scale = new Point(100, 100),
+                    scale = new PointF(100, 100),
                     rotation = 0f
-                };
+                },
+                LayerType.POINT => new PointFrame(1)
+                {
+                    position = new PointF(0, 0),
+                    scale = new PointF(100, 100),
+                    rotation = 0f
+                },
+                _ => throw new ArgumentException("Unknown layer type")
+            };
 
-                _mediator.spritePanel.SelectionRect = frame.selection;
-                _mediator.spritePanel.pivot = frame.pivotPos;
-                if (layer.layer.assignedImage != null)
-                {
-                    _mediator.spritePanel.SetSpriteSheet(layer.layer.assignedImage.Image, frame);
-                    frame.imagePreview.savedImage = _mediator.spritePanel.GetSelectedImage();
-                }
-            }
-            else if (_mediator.eventsBox.SelectedItem != null && !String.IsNullOrEmpty(_mediator.eventsBox.SelectedItem.ToString()))
+            if (layer.layer.type != LayerType.EVENT)
             {
-                frame = new Frame(layer.layer, 1)
+
+                if (frame is NormalFrame normalFrame && layer.layer.assignedImage != null)
                 {
-                    frameEvent = new FrameEvent(_mediator.eventsBox.SelectedItem.ToString())
-                };
+                    _mediator.spritePanel.SetSpriteSheet(layer.layer.assignedImage.Image, (NormalFrame)frame);
+                    normalFrame.UpdatePreview(layer.layer.assignedImage.Image);
+                }
+                else
+                {
+                    _mediator.spritePanel.ClearSpriteSheet();
+                }
             }
             else
             {
@@ -674,15 +679,16 @@ namespace Animax
 
                 if (currentFrame != null)
                 {
-                    if (currentFrame.interpolated && nextFrame != null && currentFrame.duration > 1)
-                    {
-                        Frame interpolatedFrame = InterpolateFrames(item.layer, currentFrame, nextFrame, progress);
-                        currentFrames.Add(item.layer, interpolatedFrame);
-                    }
-                    else
-                    {
-                        currentFrames.Add(item.layer, currentFrame);
-                    }
+                    Frame frameToAdd = currentFrame;
+
+                    if (currentFrame is NormalFrame normal &&
+                        normal.interpolated && nextFrame != null && normal.duration > 1)
+                        frameToAdd = normal.Interpolate(nextFrame, progress);
+                    else if (currentFrame is PointFrame point &&
+                             point.interpolated && nextFrame != null && point.duration > 1)
+                        frameToAdd = point.Interpolate(nextFrame, progress);
+
+                    currentFrames.Add(item.layer, frameToAdd);
                 }
                 else
                 {
@@ -692,42 +698,6 @@ namespace Animax
 
             Invalidate();
             _mediator?.animPreview.Invalidate();
-        }
-
-        private Frame InterpolateFrames(Layer layer, Frame from, Frame to, float progress)
-        {
-            Frame frame = new Frame(layer, 1)
-            {
-                selection = InterpolateRect(from.selection, to.selection, progress),
-                pivotPos = InterpolatePoint(from.pivotPos, to.pivotPos, progress),
-                position = InterpolatePoint(from.position, to.position, progress),
-                scale = InterpolatePoint(from.scale, to.scale, progress),
-
-                imagePreview = from.imagePreview,
-                visible = from.visible
-            };
-            return frame;
-        }
-
-        private Rectangle InterpolateRect(Rectangle from, Rectangle to, float progress)
-        {
-            return new Rectangle(
-                (int)Lerp(from.X, to.X, progress),
-                (int)Lerp(from.Y, to.Y, progress),
-                (int)Lerp(from.Width, to.Width, progress),
-                (int)Lerp(from.Height, to.Height, progress));
-        }
-
-        private PointF InterpolatePoint(PointF from, PointF to, float progress)
-        {
-            return new PointF(
-                Lerp(from.X, to.X, progress),
-                Lerp(from.Y, to.Y, progress));
-        }
-
-        private float Lerp(float a, float b, float t)
-        {
-            return a + (b - a) * t;
         }
 
         private bool _isDragging = false;

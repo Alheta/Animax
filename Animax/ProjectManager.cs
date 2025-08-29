@@ -165,7 +165,7 @@ namespace Animax
             layer.imageIndex = index;
             layer.assignedImage = imageResource;
 
-            foreach (Frame frame in layer.frames)
+            foreach (NormalFrame frame in layer.frames)
             {
                 frame.imagePreview.savedImage = _mediator.spritePanel.GetSelectedImage();
             }
@@ -216,9 +216,10 @@ namespace Animax
                 foreach (var layer in anim.layers)
                 {
                     var sourceImage = layer.assignedImage?.Image;
-                    foreach (var frame in layer.frames)
+                    foreach (Frame frame in layer.frames)
                     {
-                        frame.UpdatePreview(sourceImage);
+                        if (frame is NormalFrame frm)
+                            frm.UpdatePreview(sourceImage);
                     }
                 }
             }

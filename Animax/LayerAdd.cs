@@ -37,6 +37,7 @@ namespace Animax
             this.layerToEdit = layerEdit;
             this.mainForm = mediator.mainForm;
 
+
             if (layerToEdit != null)
             {
                 textBox1.Text = layerToEdit.layer.name;
@@ -58,13 +59,24 @@ namespace Animax
             inEditMode = layerToEdit == null ? false : true;
             mainForm.Enabled = false;
 
+            if (inEditMode)
+            {
+                if (layerToEdit.layer.type == LayerType.NORMAL)
+                    radioNormal.Checked = true;
+                else
+                    radioPoint.Checked = true;
+
+                label1.Visible = false;
+                panel1.Visible = false;
+            }
+
             foreach (var item in _mediator.projectManager.currentProject.images)
             {
                 ImagePreview imgPreview = new ImagePreview(item);
                 Console.WriteLine(imgPreview.FilePath);
                 imgPreview.Click += imageList_ImageClick;
                 loadedImages.Add(imgPreview);
-                strip.Items.Add(imgPreview);
+                //strip.Items.Add(imgPreview);
             }
         }
 
@@ -99,8 +111,6 @@ namespace Animax
 
         private void button3_Click(object sender, EventArgs e)
         {
-            mainForm.Enabled = true;
-            this.Close();
         }
 
         private void ShowImageDropDown(object sender, EventArgs e)
@@ -118,10 +128,21 @@ namespace Animax
         private void radio_CheckedChanged(object sender, EventArgs e)
         {
             if (radioNormal.Checked)
+            {
                 selectedLayerType = LayerType.NORMAL;
+                pictureBox1.Enabled = true;
+            }
 
             if (radioPoint.Checked)
+            {
                 selectedLayerType = LayerType.POINT;
+                pictureBox1.Enabled = false;
+            }
+        }
+
+        private void LayerAdd_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            mainForm.Enabled = true;
         }
     }
 }
