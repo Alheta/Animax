@@ -33,12 +33,11 @@
             this.button2 = new System.Windows.Forms.Button();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
             this.imageList2 = new System.Windows.Forms.ImageList(this.components);
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.radioPoint = new System.Windows.Forms.RadioButton();
             this.radioNormal = new System.Windows.Forms.RadioButton();
             this.label1 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.imagePreviewPanel1 = new Animax.AdditionalElements.ImagePreviewPanel();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -51,9 +50,9 @@
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(13, 119);
+            this.button2.Location = new System.Drawing.Point(13, 266);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(58, 23);
+            this.button2.Size = new System.Drawing.Size(70, 23);
             this.button2.TabIndex = 2;
             this.button2.Text = "Done";
             this.button2.UseVisualStyleBackColor = true;
@@ -71,16 +70,6 @@
             this.imageList2.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList2.TransparentColor = System.Drawing.Color.Transparent;
             // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox1.Location = new System.Drawing.Point(201, 52);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(205, 90);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.pictureBox1.TabIndex = 4;
-            this.pictureBox1.TabStop = false;
-            // 
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -88,7 +77,7 @@
             this.panel1.Controls.Add(this.radioNormal);
             this.panel1.Location = new System.Drawing.Point(13, 52);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(97, 61);
+            this.panel1.Size = new System.Drawing.Size(70, 61);
             this.panel1.TabIndex = 5;
             // 
             // radioPoint
@@ -124,14 +113,22 @@
             this.label1.TabIndex = 6;
             this.label1.Text = "Layer Type";
             // 
+            // imagePreviewPanel1
+            // 
+            this.imagePreviewPanel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.imagePreviewPanel1.Location = new System.Drawing.Point(90, 52);
+            this.imagePreviewPanel1.Name = "imagePreviewPanel1";
+            this.imagePreviewPanel1.Size = new System.Drawing.Size(316, 237);
+            this.imagePreviewPanel1.TabIndex = 7;
+            // 
             // LayerAdd
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(418, 153);
+            this.ClientSize = new System.Drawing.Size(418, 301);
+            this.Controls.Add(this.imagePreviewPanel1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.textBox1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
@@ -143,7 +140,6 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.LayerAdd_FormClosing);
             this.Load += new System.EventHandler(this.LayerAdd_Load);
             this.Leave += new System.EventHandler(this.LayerAdd_Leave);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
@@ -157,10 +153,10 @@
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ImageList imageList1;
         private System.Windows.Forms.ImageList imageList2;
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.RadioButton radioPoint;
         private System.Windows.Forms.RadioButton radioNormal;
         private System.Windows.Forms.Label label1;
+        private AdditionalElements.ImagePreviewPanel imagePreviewPanel1;
     }
 }

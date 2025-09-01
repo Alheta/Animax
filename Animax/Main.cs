@@ -1,4 +1,5 @@
-﻿using Animax.HandyStuff;
+﻿using Animax.AdditionalElements;
+using Animax.HandyStuff;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,7 +15,6 @@ namespace Animax
     public partial class Main : Form
     {
         public List<Animation> animations = new List<Animation>();
-        public List<FrameEvent> events = new List<FrameEvent>();
 
         private ToolStripMenuItem imageMenu = new ToolStripMenuItem("Images");
 
@@ -27,8 +27,6 @@ namespace Animax
 
         public Mediator _mediator;
         private ProjectManager projectManager;
-
-        private TextBox txt;
         public Main()
         {
             InitializeComponent();
@@ -39,7 +37,7 @@ namespace Animax
 
             projectManager = new ProjectManager();
             FramePropertiesPanel framePropertiesPanel1 = new FramePropertiesPanel(_mediator);
-
+            
             _mediator.projectManager = projectManager;
             _mediator.framePanel = timelineFramePanel1;
             _mediator.layerPanel = timelineLayerPanel1;
@@ -49,9 +47,9 @@ namespace Animax
             _mediator.instPanel = instrumentPanel1;
             _mediator.marker = new TimelineMarker(_mediator);
             _mediator.propers = framePropertiesPanel1;
-            _mediator.eventsBox = comboBox1;
             _mediator.mainForm = this;
             _mediator.clrManager = new HandyStuff.ColorManager();
+            _mediator.eventPanel = eventPanel1;
 
             //Assigning mediator to components
             timelineFramePanel1._mediator = _mediator;
@@ -59,17 +57,13 @@ namespace Animax
             animationPanel1._mediator = _mediator;
             projectManager._mediator = _mediator;
             animationPreviewPanel1._mediator = _mediator;
+            spriteSheetPanel1._mediator = _mediator;
+            eventPanel1._mediator = _mediator;
 
             spriteSheetPanel1.Controls.Add(framePropertiesPanel1);
             framePropertiesPanel1.Dock = DockStyle.Right;
 
-            events = new List<FrameEvent>();
-            comboBox1.DataSource = events;
-            comboBox1.DisplayMember = "eventName";
 
-            txt = new TextBox();
-            txt.Visible = false;
-            splitContainerPlus4.Panel1.Controls.Add(txt);
         }
         private void Main_Load(object sender, EventArgs e)
         {
@@ -108,6 +102,14 @@ namespace Animax
             spriteSheetPanel1.SelectionChanged += _mediator.UpdateProperties;
 
             playButton.Click += button1_Click;
+
+            eventPanel1.AddEvent("AAAA");
+            eventPanel1.AddEvent("AAAAbbb");
+            eventPanel1.AddEvent("AAadwb");
+            eventPanel1.AddEvent("e12314");
+
+            Console.WriteLine(_mediator.projectManager.currentProject.events.Count);
+
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -173,50 +175,11 @@ namespace Animax
 
         private void ButtonAddEvent_Click(object sender, EventArgs e)
         {
-            if (comboBox1.Visible == true)
-            {
-                comboBox1.Visible = false;
-                txt.Visible = true;
-                txt.Location = comboBox1.Location;
-                txt.Size = comboBox1.Size;
-            }
-            else if (!String.IsNullOrEmpty(txt.Text.Trim()))
-            {
-                if (!events.Any(ev => ev.eventName.Equals(txt.Text.Trim(), StringComparison.OrdinalIgnoreCase)))
-                {
-                    comboBox1.Visible = true;
-                    txt.Visible = false;
-                    events.Add(new FrameEvent(txt.Text));
 
-                    txt.Text = "";
-
-                    comboBox1.DataSource = null;
-                    comboBox1.DataSource = events;
-                    comboBox1.DisplayMember = "eventName";
-                }
-            }
         }
         private void button_Click(object sender, EventArgs e)
         {
-            if (comboBox1.Visible == false)
-            {
-                comboBox1.Visible = true;
-                txt.Visible = false;
-                txt.Text = "";
-            }
-            else if (comboBox1.SelectedItem != null)
-            {
-                var ev = comboBox1.SelectedItem as FrameEvent;
-                if (ev != null)
-                {
-                    _mediator.RemoveAllEventFrames(ev);
-                    events.Remove(ev);
 
-                    comboBox1.DataSource = null;
-                    comboBox1.DataSource = events;
-                    comboBox1.DisplayMember = "eventName";
-                }
-            }
         }
         private void openImageFrom_Click(object sender, EventArgs e)
         {

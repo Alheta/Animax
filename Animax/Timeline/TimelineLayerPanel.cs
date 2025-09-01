@@ -13,6 +13,8 @@ namespace Animax
         public Mediator _mediator;
 
         public List<TimelineLayerItem> items = new();
+        public TimelineLayerItem eventItem;
+
         public TimelineLayerItem selectedItem;
         private ContextMenuStrip contextMenu;
         private ToolStripMenuItem createMenuItem;
@@ -115,7 +117,7 @@ namespace Animax
             }
 
             selectedAnimation = anim;
-            foreach (Layer lyr in anim.layers)
+            foreach (Layer lyr in selectedAnimation.layers)
             {
                 TimelineLayerItem item = new TimelineLayerItem(lyr, _mediator)
                 {
@@ -130,20 +132,20 @@ namespace Animax
 
             items.Sort((a, b) =>
             {
-                int orderA = a.layer.type switch
+                int orderA = a.layer switch
                 {
-                    LayerType.NORMAL => 0,
-                    LayerType.POINT => 1,
-                    LayerType.EVENT => 2,
-                    _ => 3
+                    NormalLayer => 0,
+                    PointLayer => 1,
+                    EventLayer => 3,
+                    _ => 2
                 };
 
-                int orderB = b.layer.type switch
+                int orderB = b.layer switch
                 {
-                    LayerType.NORMAL => 0,
-                    LayerType.POINT => 1,
-                    LayerType.EVENT => 2,
-                    _ => 3
+                    NormalLayer => 0,
+                    PointLayer => 1,
+                    EventLayer => 3,
+                    _ => 2
                 };
 
                 return orderA.CompareTo(orderB);
@@ -216,6 +218,7 @@ namespace Animax
                 item.Width = layerContent.Width - item.Location.X - 4;
                 y += item.Height + 2;
             }
+
             _mediator.framePanel.LayoutItems();
 
             totalContentHeight = y;

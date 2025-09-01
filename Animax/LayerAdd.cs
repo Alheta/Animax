@@ -18,15 +18,8 @@ namespace Animax
         private bool inEditMode;
         private TimelineLayerItem layerToEdit;
         private Main mainForm;
-        private TimelineLayerPanel layerPanel;
-        private Animation curAnim;
-        private List<ImagePreview> loadedImages = new List<ImagePreview>();
-        private ImagePreview selectedImage;
-
+ 
         private LayerType selectedLayerType = LayerType.NORMAL;
-
-        ContextMenuStrip strip = new ContextMenuStrip();
-
         public LayerAdd(TimelineLayerItem layerEdit, Mediator mediator)
         {
             InitializeComponent();
@@ -37,16 +30,16 @@ namespace Animax
             this.layerToEdit = layerEdit;
             this.mainForm = mediator.mainForm;
 
+            imagePreviewPanel1._mediator = mediator;
+            imagePreviewPanel1.LoadImages();
 
             if (layerToEdit != null)
             {
                 textBox1.Text = layerToEdit.layer.name;
-                selectedImage = new ImagePreview(layerToEdit.layer.assignedImage);
-                if (selectedImage != null)
-                    pictureBox1.Image = selectedImage.PreviewImage;
-            }
 
-            pictureBox1.Click += ShowImageDropDown;
+                if (layerToEdit.layer is NormalLayer l)
+                    imagePreviewPanel1.SetSelectedItem(imagePreviewPanel1.FindPreviewByImageResource(l.assignedImage));
+            }
         }
 
         private void LayerAdd_Load(object sender, EventArgs e)
@@ -54,29 +47,18 @@ namespace Animax
             if (mainForm == null)
                 return;
 
-            curAnim = _mediator.animPanel.selectedItem.animation;
-            layerPanel = _mediator.layerPanel;
             inEditMode = layerToEdit == null ? false : true;
             mainForm.Enabled = false;
 
             if (inEditMode)
             {
-                if (layerToEdit.layer.type == LayerType.NORMAL)
+                if (layerToEdit.layer is NormalLayer)
                     radioNormal.Checked = true;
                 else
                     radioPoint.Checked = true;
 
                 label1.Visible = false;
                 panel1.Visible = false;
-            }
-
-            foreach (var item in _mediator.projectManager.currentProject.images)
-            {
-                ImagePreview imgPreview = new ImagePreview(item);
-                Console.WriteLine(imgPreview.FilePath);
-                imgPreview.Click += imageList_ImageClick;
-                loadedImages.Add(imgPreview);
-                //strip.Items.Add(imgPreview);
             }
         }
 
@@ -87,56 +69,54 @@ namespace Animax
         //Add layer.
         private void button2_Click(object sender, EventArgs e)
         {
+
             if (!inEditMode)
             {
-                var newLayer = new Layer(selectedLayerType)
+                if (selectedLayerType == LayerType.NORMAL)
                 {
-                    name = (String.IsNullOrEmpty(textBox1.Text) ? "New Layer" : textBox1.Text)
-                };
-                _mediator.projectManager.SetLayerImage(newLayer, selectedImage?.ImageResource);
+                    NormalLayer layer = new NormalLayer();
+                    layer.name = (String.IsNullOrEmpty(textBox1.Text) ? "New Layer" : textBox1.Text);
+                    if (imagePreviewPanel1.selectedItem != null)
+                        _mediator.projectManager.SetLayerImage(layer, imagePreviewPanel1.selectedItem.ImageResource);
+                    _mediator.layerPanel.AddLayer(_mediator.animPanel.selectedItem.animation, layer);
 
-                layerPanel.AddLayer(curAnim, newLayer);
+                }
+                else if (selectedLayerType == LayerType.POINT)
+                {
+                    PointLayer layer = new PointLayer();
+                    layer.name = (String.IsNullOrEmpty(textBox1.Text) ? "New Layer" : textBox1.Text);
+                    _mediator.layerPanel.AddLayer(_mediator.animPanel.selectedItem.animation, layer);
+                }
             }
-            else if (layerToEdit != null)
+            else
             {
                 layerToEdit.layer.name = (String.IsNullOrEmpty(textBox1.Text) ? "Layer" : textBox1.Text);
-                _mediator.projectManager.SetLayerImage(layerToEdit.layer, selectedImage?.ImageResource);
 
-                _mediator.projectManager.UpdateAllPreviews();
+                if (layerToEdit.layer is NormalLayer layer)
+                {
+                    if (imagePreviewPanel1.selectedItem != null)
+                        _mediator.projectManager.SetLayerImage(layer, imagePreviewPanel1.selectedItem.ImageResource);
+                    _mediator.projectManager.UpdateAllPreviews();
+                }
             }
 
             mainForm.Enabled = true;
             this.Close();
         }
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void ShowImageDropDown(object sender, EventArgs e)
-        {
-            strip.Show(this, PointToClient(Cursor.Position));
-        }
-
-        private void imageList_ImageClick(object sender, EventArgs e)
-        {
-            var sel = (ImagePreview)sender;
-            selectedImage = new ImagePreview(sel.ImageResource);
-            pictureBox1.Image = selectedImage.PreviewImage;
-        }
 
         private void radio_CheckedChanged(object sender, EventArgs e)
         {
             if (radioNormal.Checked)
             {
                 selectedLayerType = LayerType.NORMAL;
-                pictureBox1.Enabled = true;
+                imagePreviewPanel1.Enabled = true;
             }
 
             if (radioPoint.Checked)
             {
                 selectedLayerType = LayerType.POINT;
-                pictureBox1.Enabled = false;
+                imagePreviewPanel1.Enabled = false;
             }
         }
 

@@ -123,6 +123,8 @@ namespace Animax
                 animationPanel = this
             };
 
+            anim.layers.Add(new EventLayer());
+
             item.clicked += OnItemClicked;
             item.deleted += OnItemDeleted;
             item.renamed += (a) => Invalidate();
@@ -130,7 +132,6 @@ namespace Animax
             layerContent.Controls.Add(item.renameBox);
             layerContent.Controls.Add(item);
             items.Add(item);
-            anim.layers.Add(new Layer(LayerType.EVENT) { name = "Events" });
 
             LayoutItems();
             if (newAnim)
@@ -179,8 +180,6 @@ namespace Animax
             AnimationsUpdate?.Invoke(this);
             foreach (var item2 in items)
             {
-                if (item2.isRenaming)
-                    item2.FinishRename();
                 item2.Invalidate();
             }
         }

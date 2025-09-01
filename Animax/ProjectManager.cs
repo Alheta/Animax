@@ -38,13 +38,12 @@ namespace Animax
                 {
                     foreach (var layer in animation.layers)
                     {
-                        if (layer.assignedImage != null)
+                        if (layer is NormalLayer l)
                         {
-                            layer.imageIndex = currentProject.images.IndexOf(layer.assignedImage);
-                        }
-                        else
-                        {
-                            layer.imageIndex = -1;
+                            if (l.assignedImage != null)
+                                l.imageIndex = currentProject.images.IndexOf(l.assignedImage);
+                            else
+                                l.imageIndex = -1;
                         }
                     }
                 }
@@ -56,10 +55,16 @@ namespace Animax
 
                 string savePath = filePath ?? currentProject.filePath;
 
+                var emptyNamespaces = new XmlSerializerNamespaces();
+                emptyNamespaces.Add("", "");
+
                 var serializer = new XmlSerializer(typeof(Project));
-                using (var writer = XmlWriter.Create(savePath, new XmlWriterSettings { Indent = true }))
+                using (var writer = XmlWriter.Create(savePath, new XmlWriterSettings { 
+                    Indent = true,
+                    OmitXmlDeclaration = true
+                }))
                 {
-                    serializer.Serialize(writer, currentProject);
+                    serializer.Serialize(writer, currentProject, emptyNamespaces);
                 }
 
                 currentProject.filePath = savePath;
@@ -92,36 +97,36 @@ namespace Animax
 
         public bool LoadProject(string filePath = null)
         {
-                if (string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrEmpty(filePath))
+            {
+                using (var openDialog = new OpenFileDialog())
                 {
-                    using (var openDialog = new OpenFileDialog())
-                    {
-                        openDialog.Filter = "Animation Project Files (*.anmx)|*.anmx|All files (*.*)|*.*";
-                        openDialog.Title = "Open ANIMAX file";
+                    openDialog.Filter = "Animation Project Files (*.anmx)|*.anmx|All files (*.*)|*.*";
+                    openDialog.Title = "Open ANIMAX file";
 
-                        if (openDialog.ShowDialog() == DialogResult.OK)
-                        {
-                            filePath = openDialog.FileName;
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                    if (openDialog.ShowDialog() == DialogResult.OK)
+                    {
+                        filePath = openDialog.FileName;
+                    }
+                    else
+                    {
+                        return false;
                     }
                 }
+            }
 
-                var serializer = new XmlSerializer(typeof(Project));
-                using (var reader = XmlReader.Create(filePath))
-                {
-                    var loadedProject = (Project)serializer.Deserialize(reader);
-                    loadedProject.filePath = filePath;
-                    currentProject = loadedProject;
-                    isModified = false;
+            var serializer = new XmlSerializer(typeof(Project));
+            using (var reader = XmlReader.Create(filePath))
+            {
+                var loadedProject = (Project)serializer.Deserialize(reader);
+                loadedProject.filePath = filePath;
+                currentProject = loadedProject;
+                isModified = false;
 
-                }
-                RestoreImageReferences();
+            }
+            RestoreImageReferences();
 
-                return true;
+            return true;
         }
 
         public bool CheckSaveBeforeExit()
@@ -146,7 +151,7 @@ namespace Animax
             return true;
         }
 
-        public void SetLayerImage(Layer layer, ImageResource imageResource)
+        public void SetLayerImage(NormalLayer layer, ImageResource imageResource)
         {
             if (imageResource == null)
             {
@@ -170,7 +175,7 @@ namespace Animax
                 frame.imagePreview.savedImage = _mediator.spritePanel.GetSelectedImage();
             }
         }
-        public Image GetLayerImage(Layer layer)
+        public Image GetLayerImage(NormalLayer layer)
         {
             if (layer.assignedImage != null)
             {
@@ -191,14 +196,17 @@ namespace Animax
             {
                 foreach (var layer in animation.layers)
                 {
-                    if (layer.imageIndex >= 0 && layer.imageIndex < currentProject.images.Count)
+                    if (layer is NormalLayer l)
                     {
-                        layer.assignedImage = currentProject.images[layer.imageIndex];
-                    }
-                    else
-                    {
-                        layer.assignedImage = null;
-                        layer.imageIndex = -1;
+                        if (l.imageIndex >= 0 && l.imageIndex < currentProject.images.Count)
+                        {
+                            l.assignedImage = currentProject.images[l.imageIndex];
+                        }
+                        else
+                        {
+                            l.assignedImage = null;
+                            l.imageIndex = -1;
+                        }
                     }
                 }
             }
@@ -215,11 +223,14 @@ namespace Animax
             {
                 foreach (var layer in anim.layers)
                 {
-                    var sourceImage = layer.assignedImage?.Image;
-                    foreach (Frame frame in layer.frames)
+                    if (layer is NormalLayer l)
                     {
-                        if (frame is NormalFrame frm)
-                            frm.UpdatePreview(sourceImage);
+                        var sourceImage = l.assignedImage?.Image;
+                        foreach (Frame frame in l.frames)
+                        {
+                            if (frame is NormalFrame frm)
+                                frm.UpdatePreview(sourceImage);
+                        }
                     }
                 }
             }

@@ -73,5 +73,6 @@ namespace Animax
             Rectangle rectForDot = new Rectangle(dotPos.X - 1, dotPos.Y, dotSize, dotSize);
             e.Graphics.FillEllipse(Brushes.Black, rectForDot);
         }
+
     }
 }

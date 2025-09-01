@@ -29,7 +29,6 @@ namespace Animax
         public ImagePreview(ImageResource resource)
         {
             this.ImageResource = resource;
-            this.Text = new string(' ', 75);
             this.AutoSize = false;
             this.Width = 300;
             this.Height = 80;
@@ -38,16 +37,7 @@ namespace Animax
             {
                 this.FilePath = resource?.FilePath;
                 if (File.Exists(resource.FilePath))
-                {
                     PreviewImage = Image.FromFile(resource.FilePath);
-                    if (PreviewImage.Width > 64 || PreviewImage.Height > 64)
-                    {
-                        var ratio = Math.Min(64f / PreviewImage.Width, 64f / PreviewImage.Height);
-                        var newWidth = (int)(PreviewImage.Width * ratio);
-                        var newHeight = (int)(PreviewImage.Height * ratio);
-                        PreviewImage = new Bitmap(PreviewImage, newWidth, newHeight);
-                    }
-                }
             }
             else
             {
@@ -57,6 +47,7 @@ namespace Animax
 
             MouseDown += (s, e) =>
             {
+                Console.WriteLine("CLICK");
                 clicked.Invoke(this);
             };
         }
@@ -79,7 +70,7 @@ namespace Animax
             string[] parts = FilePath.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
             string[] lastParts = parts.Skip(Math.Max(0, parts.Length - 5)).ToArray();
 
-            using (Brush brush = new SolidBrush(isSelected? Color.White : Color.Black))
+            using (Brush brush = new SolidBrush(isSelected ? Color.White : Color.Black))
             {
                 string text = string.Join("/", lastParts);
                 Rectangle textBound = new Rectangle(e.ClipRectangle.X, e.ClipRectangle.Y, e.ClipRectangle.Width, e.ClipRectangle.Height);

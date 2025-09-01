@@ -2,16 +2,19 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 
 namespace Animax
 {
     public class SpriteSheetPanel : Panel
     {
+        public Mediator _mediator;
+
         private Image spriteSheet;
         public Rectangle selection;
-        public PointF pivot;
+
         private Point imageOffset = Point.Empty;
-        private NormalFrame selectedFrame;
+        private NormalFrame selectedFrame => _mediator.framePanel.GetSelectedNormalFrame();
 
         private float zoom = 5f;
 
@@ -24,7 +27,7 @@ namespace Animax
         private Point selectionStart;
         private Point panStart;
         private Point moveOffset;
-        private PointF pivotOffset;
+        private Point pivotOffset;
 
         public event Action<NormalFrame> SelectionChanged;
 
@@ -44,20 +47,12 @@ namespace Animax
         public void SetSpriteSheet(Image image, NormalFrame frame)
         {
             this.spriteSheet = image;
-            this.selection = frame.selection;
-            this.pivot = frame.pivotPos;
-            this.selectedFrame = frame;
-
             this.Invalidate();
         }
 
         public void ClearSpriteSheet()
         {
             this.spriteSheet = null;
-            this.selection = Rectangle.Empty;
-            this.pivot = PointF.Empty;
-            this.selectedFrame = null;
-
             this.Invalidate();
         }
 
@@ -68,8 +63,6 @@ namespace Animax
 
         public void ResetSelection()
         {
-            this.selection = Rectangle.Empty;
-            this.pivot = PointF.Empty;
             this.Invalidate();
         }
 
@@ -78,33 +71,42 @@ namespace Animax
             if (!HasSpriteSheet())
                 return;
 
-            selection = new Rectangle(prop.X, prop.Y, prop.Width, prop.Height);
-            selectedFrame.pivotPos = new PointF(prop.PivotX, prop.PivotY);
+            selectedFrame.selection = new Rectangle(prop.X, prop.Y, prop.Width, prop.Height);
+            selectedFrame.pivotPos = new Point(prop.PivotX, prop.PivotY);
             this.Invalidate();
         }
 
         public Bitmap GetSelectedImage()
         {
-            if (selection.IsEmpty)
-                return null;
+            if (selectedFrame == null) return null;
+            if (selectedFrame.selection.IsEmpty) return null;
 
-            Rectangle sourceRect = new Rectangle(selection.X, selection.Y, selection.Width, selection.Height);
+            Rectangle sourceRect = selectedFrame.selection;
+
             Bitmap cropped = new Bitmap(sourceRect.Width, sourceRect.Height);
 
             using (Graphics g = Graphics.FromImage(cropped))
             {
-                g.DrawImage(spriteSheet, new Rectangle(0, 0, sourceRect.Width, sourceRect.Height), selection, GraphicsUnit.Pixel);
+                g.DrawImage(
+                    spriteSheet,
+                    new Rectangle(0, 0, sourceRect.Width, sourceRect.Height),
+                    sourceRect,
+                    GraphicsUnit.Pixel
+                );
             }
 
             return cropped;
         }
 
-        public PointF GetSelectePivot()
+        public Point GetSelectePivot()
         {
-            if (selection.IsEmpty)
+            if (selectedFrame.selection.IsEmpty)
                 return Point.Empty;
 
-            PointF pivotRelative = new PointF(selection.X - selectedFrame.pivotPos.X, selection.Y - selectedFrame.pivotPos.Y);
+            Point pivotRelative = new Point(
+                selectedFrame.pivotPos.X - selectedFrame.selection.X,
+                selectedFrame.pivotPos.Y - selectedFrame.selection.Y
+            );
 
             return pivotRelative;
         }
@@ -112,15 +114,15 @@ namespace Animax
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-
-            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-            e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
-            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
-
             e.Graphics.Clear(Color.LightGray);
 
             if (spriteSheet == null)
                 return;
+
+            GraphicsState originalState = e.Graphics.Save();
+            e.Graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
+            e.Graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Half;
+            e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.None;
 
             if (zoom > 0.8f)
                 DrawGrid(e.Graphics, showSheetGrid);
@@ -128,33 +130,58 @@ namespace Animax
             e.Graphics.TranslateTransform(imageOffset.X, imageOffset.Y);
             e.Graphics.ScaleTransform(zoom, zoom);
 
-            e.Graphics.DrawImage(spriteSheet, 0, 0);
+            e.Graphics.DrawImage(spriteSheet, 0, 0, spriteSheet.Width, spriteSheet.Height);
+            e.Graphics.Restore(originalState);
+            DrawSelection(e.Graphics);
 
+        }
+        private void DrawSelection(Graphics g)
+        {
+            if (selectedFrame == null) return;
 
-            if (selection.Width > 0 && selection.Height > 0)
+            if (selectedFrame.selection.Width > 0 && selectedFrame.selection.Height > 0)
             {
-                using (Pen selPen = new Pen(Color.Red, 2 / zoom))
+                Rectangle screenSelection = ImageToScreen(selectedFrame.selection);
+
+                using (Pen selPen = new Pen(Color.Red, 2)) 
                 {
                     selPen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dash;
-                    e.Graphics.DrawRectangle(selPen, selection);
-                }
-                DrawHandles(e.Graphics);
-
-                using (var fillBrush = new SolidBrush(Color.Purple))
-                using (var borderPen = new Pen(Color.White, 0.4f / zoom))
-                {
-                    e.Graphics.FillRectangle(fillBrush, pivot.X - 0.5f, pivot.Y - 0.5f, 1, 1);
-                    e.Graphics.DrawRectangle(borderPen, pivot.X - 0.5f, pivot.Y - 0.5f, 1, 1);
+                    g.DrawRectangle(selPen, screenSelection);
                 }
 
+                DrawHandles(g);
+                DrawPivot(g);
+            }
+        }
+
+        private void DrawPivot(Graphics g)
+        {
+            Point screenPivot = new Point(
+                (int)(selectedFrame.pivotPos.X * zoom + imageOffset.X),
+                (int)(selectedFrame.pivotPos.Y * zoom + imageOffset.Y)
+            );
+
+            using (var fillBrush = new SolidBrush(Color.Purple))
+            using (var borderPen = new Pen(Color.White, 1f))
+            {
+                float pivotSize = 6f;
+                g.FillEllipse(fillBrush,
+                    screenPivot.X - pivotSize / 2,
+                    screenPivot.Y - pivotSize / 2,
+                    pivotSize, pivotSize);
+                g.DrawEllipse(borderPen,
+                    screenPivot.X - pivotSize / 2,
+                    screenPivot.Y - pivotSize / 2,
+                    pivotSize, pivotSize);
             }
         }
 
         private void DrawHandles(Graphics g)
         {
-            var handles = GetHandleRects();
+            var handles = GetHandleRectsScreenSpace();
+
             using (var fillBrush = new SolidBrush(Color.White))
-            using (var borderPen = new Pen(Color.Black, 0.4f / zoom))
+            using (var borderPen = new Pen(Color.Black, 1f))
             {
                 foreach (var rect in handles)
                 {
@@ -210,9 +237,9 @@ namespace Animax
             {
                 var imgPoint = ScreenToImage(e.Location);
 
-                if (!selection.IsEmpty)
+                if (!selectedFrame.selection.IsEmpty)
                 {
-                    if (ModifierKeys.HasFlag(Keys.Control) && selection.Contains(imgPoint))
+                    if (ModifierKeys.HasFlag(Keys.Control) && selectedFrame.selection.Contains(imgPoint))
                     {
                         ResetSelection();
                         Invalidate();
@@ -225,34 +252,36 @@ namespace Animax
                         isResizing = true;
                         return;
                     }
-                    else if (selection.Contains(imgPoint))
+                    else if (selectedFrame.selection.Contains(imgPoint))
                     {
                         isMovingSelection = true;
-                        moveOffset = new Point(imgPoint.X - selection.X, imgPoint.Y - selection.Y);
-                        pivotOffset = new PointF(imgPoint.X - pivot.X, imgPoint.Y - pivot.Y);
+                        moveOffset = new Point(imgPoint.X - selectedFrame.selection.X, imgPoint.Y - selectedFrame.selection.Y);
+                        pivotOffset = new Point(imgPoint.X - selectedFrame.pivotPos.X, imgPoint.Y - selectedFrame.pivotPos.Y);
                         return;
                     }
                 }
 
-                if (selection.IsEmpty)
+                if (selectedFrame.selection.IsEmpty)
                 {
                     isSelecting = true;
                     selectionStart = imgPoint;
-                    selection = new Rectangle(selectionStart, Size.Empty);
-                    pivot = selectionStart;
+                    selectedFrame.selection = new Rectangle(selectionStart, Size.Empty);
+                    selectedFrame.pivotPos = selectionStart;
                     Invalidate();
                 }
             }
 
             if (e.Button == MouseButtons.Right)
             {
-                isMovingPivot = true;
-                PointF mousePos = (PointF)ScreenToImage(e.Location);
-                float snappedX = (float)Math.Round(mousePos.X);
-                float snappedY = (float)Math.Round(mousePos.Y);
 
-                pivot = new PointF(snappedX, snappedY);
-                selectedFrame.pivotPos = pivot;
+                isMovingPivot = true;
+                PointF mousePos = (Point)ScreenToImage(e.Location);
+                int snappedX = (int)Math.Round(mousePos.X);
+                int snappedY = (int)Math.Round(mousePos.Y);
+
+                selectedFrame.pivotPos = new Point(snappedX, snappedY);
+                selectedFrame.imagePreview.relativePivot = GetSelectePivot();
+
                 SelectionChanged?.Invoke(selectedFrame);
                 Invalidate();
             }
@@ -286,32 +315,27 @@ namespace Animax
                     w = Math.Max(1, w);
                     h = Math.Max(1, h);
 
-                    selection = new Rectangle(x, y, w, h);
-                    pivot = new PointF(x, y);
+                    selectedFrame.selection = new Rectangle(x, y, w, h);
 
+                    selectedFrame.pivotPos = new Point(x, y);
                     selectedFrame.imagePreview.relativePivot = GetSelectePivot();
-                    selectedFrame.pivotPos = pivot;
                 }
                 else if (isResizing)
                     ResizeSelection(e.Location);
                 else if (isMovingSelection)
                 {
                     Point imgPoint = ScreenToImage(e.Location);
-                    selection.X = imgPoint.X - moveOffset.X;
-                    selection.Y = imgPoint.Y - moveOffset.Y;
-
-                    selectedFrame.imagePreview.relativePivot = GetSelectePivot();
+                    selectedFrame.selectionX = (imgPoint.X - moveOffset.X);
+                    selectedFrame.selectionY = (imgPoint.Y - moveOffset.Y);
 
                     if(ModifierKeys.HasFlag(Keys.Alt))
                     {
-                        pivot.X = imgPoint.X - pivotOffset.X;
-                        pivot.Y = imgPoint.Y - pivotOffset.Y;
+                        selectedFrame.pivotPos = new Point(imgPoint.X - pivotOffset.X, imgPoint.Y - pivotOffset.Y);
                     }
-                    selectedFrame.pivotPos = pivot;
                 }
 
                 selectedFrame.imagePreview.savedImage = GetSelectedImage();
-                selectedFrame.selection = selection;
+                selectedFrame.imagePreview.relativePivot = GetSelectePivot();
 
                 SelectionChanged?.Invoke(selectedFrame);
 
@@ -322,14 +346,12 @@ namespace Animax
             {
                 if (isMovingPivot)
                 {
-                    PointF mousePos = (PointF)ScreenToImage(e.Location);
-                    float snappedX = (float)Math.Ceiling(mousePos.X);
-                    float snappedY = (float)Math.Ceiling(mousePos.Y);
+                    PointF mousePos = (Point)ScreenToImage(e.Location);
+                    int snappedX = (int)Math.Round(mousePos.X);
+                    int snappedY = (int)Math.Round(mousePos.Y);
 
-                    pivot = new PointF(snappedX, snappedY);
-
+                    selectedFrame.pivotPos = new Point(snappedX, snappedY);
                     selectedFrame.imagePreview.relativePivot = GetSelectePivot();
-                    selectedFrame.pivotPos = pivot;
 
                     SelectionChanged?.Invoke(selectedFrame);
 
@@ -359,7 +381,7 @@ namespace Animax
                     isMovingSelection = false;
 
                 selectedFrame.imagePreview.savedImage = GetSelectedImage();
-                selectedFrame.selection = selection;
+
                 SelectionChanged?.Invoke(selectedFrame);
 
                 activeHandle = resizeHandleType.None;
@@ -391,6 +413,8 @@ namespace Animax
         {
             int half = HANDLE_SIZE / 2;
 
+            Rectangle selection = selectedFrame.selection;
+
             return new Rectangle[]
             {
                 new Rectangle(selection.Left - half, selection.Top - half, HANDLE_SIZE, HANDLE_SIZE),       // TopLeft
@@ -421,7 +445,7 @@ namespace Animax
         private void ResizeSelection(Point mouse)
         {
             Point imgPoint = ScreenToImage(mouse);
-            var sel = selection;
+            Rectangle sel = selectedFrame.selection;
 
             switch (activeHandle)
             {
@@ -461,8 +485,7 @@ namespace Animax
                         break;
                     }
             }
-
-            selection = sel;
+            selectedFrame.selection = sel;
         }
 
         private Point ScreenToImage(Point screen)
@@ -470,6 +493,16 @@ namespace Animax
             return new Point(
                 (int)((screen.X - imageOffset.X) / zoom),
                 (int)((screen.Y - imageOffset.Y) / zoom)
+            );
+        }
+
+        private Rectangle ImageToScreen(Rectangle imageRect)
+        {
+            return new Rectangle(
+                (int)(imageRect.X * zoom + imageOffset.X),
+                (int)(imageRect.Y * zoom + imageOffset.Y),
+                (int)(imageRect.Width * zoom),
+                (int)(imageRect.Height * zoom)
             );
         }
 
@@ -500,16 +533,6 @@ namespace Animax
             imageOffset.Y += (int)((imagePosAfter.Y - imagePosBefore.Y) * zoom);
 
             Invalidate();
-        }
-
-        public Rectangle SelectionRect
-        {
-            get { return selection; }
-            set
-            {
-                selection = value;
-                Invalidate();
-            }
         }
     }
 }

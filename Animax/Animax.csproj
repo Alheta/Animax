@@ -50,6 +50,9 @@
     <Compile Include="AdditionalElements\AnimaxButton.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="AdditionalElements\EventPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="AdditionalElements\FramePropertiesPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -62,7 +65,9 @@
     <Compile Include="AdditionalElements\InstrumentPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="AdditionalElements\LayerPanel.cs" />
+    <Compile Include="AdditionalElements\LayerPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="AdditionalElements\SplitContainerPlus.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -70,13 +75,23 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Animation.cs" />
-    <Compile Include="AnimationPanel\AnimationItem.cs" />
-    <Compile Include="AnimationPanel\AnimationPanel.cs" />
-    <Compile Include="AnimationPanel\AnimationPreviewPanel.cs" />
+    <Compile Include="AnimationPanel\AnimationItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AnimationPanel\AnimationPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="AnimationPanel\AnimationPreviewPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="HandyStuff\ColorManager.cs" />
     <Compile Include="HandyStuff\ControlExtensions.cs" />
-    <Compile Include="HandyStuff\FloatingControl.cs" />
-    <Compile Include="HandyStuff\TitleBar.cs" />
+    <Compile Include="HandyStuff\FloatingControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="HandyStuff\TitleBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="ImageForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -101,11 +116,21 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="SpriteSheetProperties.cs" />
-    <Compile Include="Timeline\TimelineFrameItem.cs" />
-    <Compile Include="Timeline\TimelineFramePanel.cs" />
-    <Compile Include="Timeline\TimelineLayerItem.cs" />
-    <Compile Include="Timeline\TimelineLayerPanel.cs" />
-    <Compile Include="Timeline\TimelineMarker.cs" />
+    <Compile Include="Timeline\TimelineFrameItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Timeline\TimelineFramePanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Timeline\TimelineLayerItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Timeline\TimelineLayerPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Timeline\TimelineMarker.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <EmbeddedResource Include="AdditionalElements\LayerPanel.resx" />
     <EmbeddedResource Include="ImageForm.en.resx">
       <DependentUpon>ImageForm.cs</DependentUpon>

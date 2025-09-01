@@ -15,14 +15,20 @@ using System.Xml.Serialization;
 
 namespace Animax
 {
-    public enum LayerType { NORMAL, POINT, EVENT };
- 
     [XmlRoot("AnimationProject")]
     public class Project
     {
-        public string name { get; set; } = "New Project";
-        public List<Animation> animations { get; set; } = new List<Animation>();
+        [XmlArray("Images")]
+        [XmlArrayItem("Image")]
         public List<ImageResource> images { get; set; } = new List<ImageResource>();
+
+        [XmlArray("Events")]
+        [XmlArrayItem("Event")] 
+        public List<Event> events { get; set; } = new List<Event>();
+
+        [XmlArray("Animations")]
+        [XmlArrayItem("Animation")] 
+        public List<Animation> animations { get; set; } = new List<Animation>();
 
         [XmlIgnore]
         public string filePath;
@@ -31,59 +37,19 @@ namespace Animax
     [Serializable]
     public class Animation
     {
-        [XmlAttribute("name")] public string name { get; set; } = "New Animation";
+        [XmlAttribute("name")] public string name { get; set; }
         [XmlAttribute("isDefault")] public bool isDefault { get; set; } = false;
         [XmlAttribute("isLooping")] public bool isLooping { get; set; } = false;
         [XmlAttribute("duration")] public int duration { get; set; } = 1;
+
+        [XmlArray("Layers")]
+        [XmlArrayItem(typeof(NormalLayer))]
+        [XmlArrayItem(typeof(PointLayer))]
+        [XmlArrayItem(typeof(EventLayer))]
         public List<Layer> layers { get; set; } = new List<Layer>();
     }
 
-    [Serializable]
-    public class Layer
-    {
-        [XmlAttribute("name")] public string name { get; set; } = "NewLayer";
-        [XmlAttribute("visible")] public bool isVisible { get; set; } = true;
-        [XmlAttribute("imageIndex")] public int imageIndex { get; set; } = -1;
-        [XmlAttribute("type")] public LayerType type { get; set; }
-
-        [XmlArray("Frames")]
-        [XmlArrayItem(typeof(NormalFrame))]
-        [XmlArrayItem(typeof(PointFrame))]
-        [XmlArrayItem(typeof(EventFrame))]
-        public List<Frame> frames { get; set; } = new List<Frame>();
-
-        public Layer(LayerType layerType)
-        {
-            type = layerType;
-        }
-
-        public Layer()
-        {
-            type = LayerType.NORMAL;
-        }
-
-        [XmlIgnore]
-        public ImageResource assignedImage{ get; set; }
-    }
-
-    [Serializable]
-    [XmlInclude(typeof(NormalFrame))]
-    [XmlInclude(typeof(PointFrame))]
-    [XmlInclude(typeof(EventFrame))]
-    public abstract class Frame
-    {
-        [XmlAttribute("type")]
-        public abstract FrameType type { get; }
-
-        [XmlAttribute("duration")]
-        public int duration { get; set; } = 1;
-
-        [XmlIgnore]
-        public abstract bool hasVisualContent { get; }
-        public abstract Frame Interpolate(Frame nextFrame, float progress);
-    }
-
-    public enum FrameType
+    public enum LayerType
     {
         NORMAL,
         POINT,
@@ -91,34 +57,130 @@ namespace Animax
     }
 
     [Serializable]
-    public class NormalFrame : Frame
+    [XmlInclude(typeof(NormalLayer))]
+    [XmlInclude(typeof(PointLayer))]
+    [XmlInclude(typeof(EventLayer))]
+    public abstract class Layer
+    {
+        [XmlIgnore] public abstract string name { get; set; }
+        [XmlIgnore] public virtual bool visible { get; set; }
+        public abstract IEnumerable<Frame> GetFrames();
+        public abstract (Frame currentFrame, Frame nextFrame, float progress) GetCurrentFrameData(int markerIndex);
+    }
+
+    [Serializable]
+    public class NormalLayer : Layer
+    {
+        [XmlAttribute("name")] public override string name { get; set; } = "NewLayer";
+        [XmlAttribute("visible")] public override bool visible { get; set; } = true;
+
+        [XmlAttribute("imageIndex")] public int imageIndex { get; set; } = -1;
+        [XmlIgnore] public ImageResource assignedImage { get; set; }
+
+        [XmlArray("Frames")]
+        [XmlArrayItem(typeof(NormalFrame))]
+        public List<NormalFrame> frames { get; set; } = new List<NormalFrame>();
+        public override IEnumerable<Frame> GetFrames() => frames.Cast<NormalFrame>();
+        public override (Frame currentFrame, Frame nextFrame, float progress) GetCurrentFrameData(int markerIndex) { return FrameUtils.GetFrameData(frames, markerIndex); }
+    }
+
+    [Serializable]
+    public class PointLayer : Layer 
+    {
+        [XmlAttribute("name")] public override string name { get; set; } = "NewLayer";
+        [XmlAttribute("visible")] public override bool visible { get; set; } = true;
+
+        [XmlArray("Frames")]
+        [XmlArrayItem(typeof(PointFrame))]
+        public List<PointFrame> frames { get; set; } = new List<PointFrame>();
+        public override IEnumerable<Frame> GetFrames() => frames.Cast<PointFrame>();
+        public override (Frame currentFrame, Frame nextFrame, float progress) GetCurrentFrameData(int markerIndex) { return FrameUtils.GetFrameData(frames, markerIndex); }
+    }
+
+    [Serializable]
+    public class EventLayer : Layer 
+    {
+        [XmlIgnore]
+        public override string name
+        {
+            get => "Events";
+            set { }
+        }
+
+        [XmlIgnore]
+        public override bool visible
+        {
+            get => true;
+            set { }
+        }
+
+        [XmlArray("Frames")]
+        [XmlArrayItem(typeof(EventFrame))]
+        public List<EventFrame> frames { get; set; } = new List<EventFrame>();
+        public override IEnumerable<Frame> GetFrames() => frames.Cast<EventFrame>();
+        public override (Frame currentFrame, Frame nextFrame, float progress) GetCurrentFrameData(int markerIndex)
+        {
+            return (null, null, 0);
+        }
+
+    }
+
+
+    [Serializable]
+    [XmlInclude(typeof(NormalFrame))]
+    [XmlInclude(typeof(PointFrame))]
+    [XmlInclude(typeof(EventFrame))]
+    public abstract class Frame 
+    {
+        public abstract int GetDuration();
+    }
+
+    [Serializable]
+    public abstract class TransformFrame : Frame
+    {
+        [XmlAttribute("positionX")] public int positionX { get; set; }
+        [XmlAttribute("positionY")] public int positionY { get; set; }
+        [XmlAttribute("scaleX")] public int scaleX { get; set; } = 100;
+        [XmlAttribute("scaleY")] public int scaleY { get; set; } = 100;
+        [XmlAttribute("rotation")] public int rotation { get; set; }
+        [XmlAttribute("interpolated")] public bool interpolated { get; set; } = true;
+        [XmlAttribute("duration")] public int duration { get; set; } = 1;
+        [XmlAttribute("visible")] public bool visible { get; set; } = true;
+
+        [XmlIgnore]
+        public Point position
+        {
+            get => new Point(positionX, positionY);
+            set { positionX = value.X; positionY = value.Y; }
+        }
+
+        [XmlIgnore]
+        public Point scale
+        {
+            get => new Point(scaleX, scaleY);
+            set { scaleX = value.X; scaleY = value.Y; }
+        }
+
+        public abstract Frame Interpolate(Frame nextFrame, float progress);
+        public override int GetDuration() => duration;
+
+    }
+
+    [Serializable]
+    public class NormalFrame : TransformFrame
     {
         [XmlAttribute("selectionX")] public int selectionX { get; set; }
         [XmlAttribute("selectionY")] public int selectionY { get; set; }
         [XmlAttribute("selectionWidth")] public int selectionWidth { get; set; }
         [XmlAttribute("selectionHeight")] public int selectionHeight { get; set; }
-        [XmlAttribute("pivotX")] public float pivotPosX { get; set; }
-        [XmlAttribute("pivotY")] public float pivotPosY { get; set; }
-        [XmlAttribute("interpolated")] public bool interpolated { get; set; } = true;
-        [XmlAttribute("visible")] public bool visible { get; set; } = true;
-        [XmlAttribute("positionX")] public float positionX { get; set; }
-        [XmlAttribute("positionY")] public float positionY { get; set; }
-        [XmlAttribute("scaleX")] public float scaleX { get; set; } = 100;
-        [XmlAttribute("scaleY")] public float scaleY { get; set; } = 100;
-        [XmlAttribute("rotation")] public float rotation { get; set; } = 0;
-
-        public override FrameType type => FrameType.NORMAL;
-        public override bool hasVisualContent => true;
+        [XmlAttribute("pivotX")] public int pivotPosX { get; set; }
+        [XmlAttribute("pivotY")] public int pivotPosY { get; set; }
 
         [XmlIgnore]
-        public (Bitmap savedImage, PointF relativePivot) imagePreview;
+        public (Bitmap savedImage, Point relativePivot) imagePreview;
 
         public NormalFrame() { }
-
-        public NormalFrame(int frameDuration)
-        {
-            duration = Math.Max(1, frameDuration);
-        }
+        public NormalFrame(int dur) { duration = Math.Max(1, dur); }
 
         public void UpdatePreview(Image sourceImage)
         {
@@ -135,10 +197,8 @@ namespace Animax
                 imagePreview.savedImage = new Bitmap(selection.Width, selection.Height);
                 using (var g = Graphics.FromImage(imagePreview.savedImage))
                 {
-                    g.DrawImage(sourceImage,
-                        new Rectangle(0, 0, selection.Width, selection.Height),
-                        selection,
-                        GraphicsUnit.Pixel);
+                    g.DrawImage(sourceImage, new Rectangle(0, 0, selection.Width, selection.Height),
+                              selection, GraphicsUnit.Pixel);
                 }
             }
             catch
@@ -149,20 +209,20 @@ namespace Animax
 
         public override Frame Interpolate(Frame nextFrame, float progress)
         {
-            if (nextFrame is not NormalFrame nextNormalFrame)
+            if (nextFrame is not NormalFrame nextNormalFrame || !interpolated)
                 return this;
 
             return new NormalFrame(1)
             {
-                position = new PointF(
-                    position.X + (nextNormalFrame.position.X - position.X) * progress,
-                    position.Y + (nextNormalFrame.position.Y - position.Y) * progress
+                position = new Point(
+                    (int)(position.X + (nextNormalFrame.position.X - position.X) * progress),
+                    (int)(position.Y + (nextNormalFrame.position.Y - position.Y) * progress)
                 ),
-                scale  = new PointF(
-                    scale.X + (nextNormalFrame.scale.X - scale.X) * progress,
-                    scale.Y + (nextNormalFrame.scale.Y - scale.Y) * progress
+                scale = new Point(
+                    (int)(scale.X + (nextNormalFrame.scale.X - scale.X) * progress),
+                    (int)(scale.Y + (nextNormalFrame.scale.Y - scale.Y) * progress)
                 ),
-                rotation = rotation + (nextNormalFrame.rotation - rotation) * progress,
+                rotation = (int)(rotation + (nextNormalFrame.rotation - rotation) * progress),
                 selection = this.selection,
                 pivotPos = this.pivotPos,
                 visible = this.visible,
@@ -170,7 +230,6 @@ namespace Animax
                 imagePreview = this.imagePreview
             };
         }
-
         [XmlIgnore]
         public Rectangle selection
         {
@@ -185,140 +244,56 @@ namespace Animax
         }
 
         [XmlIgnore]
-        public PointF pivotPos
+        public Point pivotPos
         {
-            get => new PointF(pivotPosX, pivotPosY);
-            set
-            {
-                pivotPosX = value.X;
-                pivotPosY = value.Y;
-            }
-        }
-
-        [XmlIgnore]
-        public PointF position
-        {
-            get => new PointF(positionX, positionY);
-            set
-            {
-                positionX = value.X;
-                positionY = value.Y;
-            }
-        }
-
-        [XmlIgnore]
-        public PointF scale
-        {
-            get => new PointF(scaleX, scaleY);
-            set
-            {
-                scaleX = value.X;
-                scaleY = value.Y;
-            }
+            get => new Point(pivotPosX, pivotPosY);
+            set { pivotPosX = value.X; pivotPosY = value.Y; }
         }
     }
 
     [Serializable]
-    public class PointFrame : Frame
+    public class PointFrame : TransformFrame
     {
-        [XmlAttribute("interpolated")] public bool interpolated { get; set; } = true;
-        [XmlAttribute("visible")] public bool visible { get; set; } = true;
-        [XmlAttribute("positionX")] public float positionX { get; set; }
-        [XmlAttribute("positionY")] public float positionY { get; set; }
-        [XmlAttribute("scaleX")] public float scaleX { get; set; } = 100;
-        [XmlAttribute("scaleY")] public float scaleY { get; set; } = 100;
-        [XmlAttribute("rotation")] public float rotation { get; set; } = 0;
-        public override FrameType type => FrameType.POINT;
-        public override bool hasVisualContent => true;
         public PointFrame() { }
-
-        public PointFrame(int frameDuration)
-        {
-            duration = Math.Max(1, frameDuration);
-        }
+        public PointFrame(int dur) { duration = Math.Max(1, dur); }
 
         public override Frame Interpolate(Frame nextFrame, float progress)
         {
-            if (nextFrame is not PointFrame nextPointFrame)
+            if (nextFrame is not PointFrame nextPointFrame || !interpolated)
                 return this;
 
             return new PointFrame(1)
             {
-                position = new PointF(
-                    position.X + (nextPointFrame.position.X - position.X) * progress,
-                    position.Y + (nextPointFrame.position.Y - position.Y) * progress
-                ),
-                scale = new PointF(
-                    scale.X + (nextPointFrame.scale.X - scale.X) * progress,
-                    scale.Y + (nextPointFrame.scale.Y - scale.Y) * progress
-                ),
-                rotation = rotation + (nextPointFrame.rotation - rotation) * progress,
+                position = new Point(
+                      (int)(position.X + (nextPointFrame.position.X - position.X) * progress),
+                      (int)(position.Y + (nextPointFrame.position.Y - position.Y) * progress)
+                    ),
+                scale = new Point(
+                      (int)(scale.X + (nextPointFrame.scale.X - scale.X) * progress),
+                      (int)(scale.Y + (nextPointFrame.scale.Y - scale.Y) * progress)
+                    ),
+                rotation = (int)(rotation + (nextPointFrame.rotation - rotation) * progress),
                 visible = this.visible,
-                interpolated = this.interpolated,
+                interpolated = this.interpolated
             };
-        }
-
-        [XmlIgnore]
-        public bool isSelected = false;
-
-        [XmlIgnore]
-        public PointF position
-        {
-            get => new PointF(positionX, positionY);
-            set
-            {
-                positionX = value.X;
-                positionY = value.Y;
-            }
-        }
-
-        [XmlIgnore]
-        public PointF scale
-        {
-            get => new PointF(scaleX, scaleY);
-            set
-            {
-                scaleX = value.X;
-                scaleY = value.Y;
-            }
         }
     }
 
     [Serializable]
     public class EventFrame : Frame
     {
-        [XmlElement("Event")] public FrameEvent frameEvent { get; set; }
-
-        public override FrameType type => FrameType.EVENT;
-        public override bool hasVisualContent => false;
-
+        [XmlAttribute("eventId")] public int eventId { get; set; }
+        [XmlAttribute("targetFrame")] public int targetFrame { get; set; }
+        
         public EventFrame() { }
-
-        public EventFrame(int frameDuration, FrameEvent fEvent)
+        public EventFrame(int targetFrame, int eventId) 
         {
-            duration = Math.Max(1, frameDuration);
-            frameEvent = fEvent;
+            this.targetFrame = targetFrame;
+            this.eventId = eventId;
         }
-        public override Frame Interpolate(Frame nextFrame, float progress)
-        {
-            return this;
-        }
+        public override int GetDuration() => 1;
     }
 
-    [Serializable]
-    public class FrameEvent
-    {
-        public string eventName;
-        public FrameEvent(string name)
-        {
-            eventName = name;
-        }
-
-        public FrameEvent()
-        {
-            eventName = "NewEvent";
-        }
-    }
 
     [Serializable]
     public class ImageResource
@@ -350,6 +325,49 @@ namespace Animax
         {
             FilePath = filePath;
             Name = Path.GetFileName(filePath);
+        }
+    }
+
+    [Serializable]
+    public class Event
+    {
+        [XmlAttribute("name")] public string name { get; set; } = "newEvent";
+        [XmlAttribute("index")] public int index { get; set; } = 0;
+
+        public Event() { }
+        public Event(string name) 
+        {
+            this.name = name;
+        }
+    }
+
+    public static class FrameUtils
+    {
+        public static (Frame currentFrame, Frame nextFrame, float progress) GetFrameData<T>(
+            List<T> frames, int markerIndex) where T : TransformFrame
+        {
+            if (frames == null || frames.Count == 0)
+                return (null, null, 0);
+
+            int accumulatedDuration = 0;
+            Frame lastFrame = frames.Count > 0 ? frames[frames.Count - 1] : null;
+
+            for (int i = 0; i < frames.Count; i++)
+            {
+                var frame = frames[i];
+                int frameDuration = Math.Max(1, frame.duration);
+
+                if (markerIndex < accumulatedDuration + frameDuration)
+                {
+                    float progress = (float)(markerIndex - accumulatedDuration) / frameDuration;
+                    Frame nextFrame = (i < frames.Count - 1) ? frames[i + 1] : null;
+                    return (frame, nextFrame, progress);
+                }
+
+                accumulatedDuration += frameDuration;
+            }
+
+            return (lastFrame, null, 0);
         }
     }
 }

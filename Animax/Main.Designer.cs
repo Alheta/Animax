@@ -44,8 +44,6 @@ namespace Animax
             this.spriteSheetPanel1 = new Animax.SpriteSheetPanel();
             this.splitContainerPlus3 = new Animax.SplitContainerPlus();
             this.splitContainerPlus4 = new Animax.SplitContainerPlus();
-            this.label15 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.playButton = new System.Windows.Forms.Button();
             this.splitContainerPlus6 = new Animax.SplitContainerPlus();
@@ -56,6 +54,7 @@ namespace Animax
             this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.contextMenuStrip3 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.eventPanel1 = new Animax.AdditionalElements.EventPanel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerPlus1)).BeginInit();
             this.splitContainerPlus1.Panel1.SuspendLayout();
             this.splitContainerPlus1.Panel2.SuspendLayout();
@@ -164,7 +163,6 @@ namespace Animax
             // 
             resources.ApplyResources(this.spriteSheetPanel1, "spriteSheetPanel1");
             this.spriteSheetPanel1.Name = "spriteSheetPanel1";
-            this.spriteSheetPanel1.SelectionRect = new System.Drawing.Rectangle(0, 0, 0, 0);
             // 
             // splitContainerPlus3
             // 
@@ -188,26 +186,13 @@ namespace Animax
             // 
             // splitContainerPlus4.Panel1
             // 
-            this.splitContainerPlus4.Panel1.Controls.Add(this.label15);
-            this.splitContainerPlus4.Panel1.Controls.Add(this.comboBox1);
+            this.splitContainerPlus4.Panel1.Controls.Add(this.eventPanel1);
             this.splitContainerPlus4.Panel1.Controls.Add(this.label7);
             this.splitContainerPlus4.Panel1.Controls.Add(this.playButton);
             // 
             // splitContainerPlus4.Panel2
             // 
             this.splitContainerPlus4.Panel2.Controls.Add(this.splitContainerPlus6);
-            // 
-            // label15
-            // 
-            resources.ApplyResources(this.label15, "label15");
-            this.label15.Name = "label15";
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            resources.ApplyResources(this.comboBox1, "comboBox1");
-            this.comboBox1.Name = "comboBox1";
             // 
             // label7
             // 
@@ -273,6 +258,11 @@ namespace Animax
             // 
             resources.ApplyResources(this.menuStrip1, "menuStrip1");
             this.menuStrip1.Name = "menuStrip1";
+            // 
+            // eventPanel1
+            // 
+            resources.ApplyResources(this.eventPanel1, "eventPanel1");
+            this.eventPanel1.Name = "eventPanel1";
             // 
             // Main
             // 
@@ -342,7 +332,6 @@ namespace Animax
         private SplitContainerPlus splitContainerPlus6;
         private TimelineLayerPanel timelineLayerPanel1;
         private TimelineFramePanel timelineFramePanel1;
-        private Label label15;
-        private ComboBox comboBox1;
+        private AdditionalElements.EventPanel eventPanel1;
     }
 }

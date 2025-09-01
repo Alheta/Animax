@@ -13,7 +13,6 @@ namespace Animax
 {
     public class TimelineLayerItem : UserControl
     {
-
         public Mediator _mediator;
 
         public Layer layer { get; }
@@ -33,44 +32,54 @@ namespace Animax
             this.DoubleBuffered(true);
             _mediator = mediator;
             layer = lyr;
+
             Height = _mediator.layerPanel.lineHeight;
 
-            if (layer.type != LayerType.EVENT)
+            if (layer is not EventLayer)
             {
                 itemMenu = new ContextMenuStrip();
                 itemMenu.Items.Add("Properties", null, (s, e) => _mediator.OpenLayerEditor(this));
                 itemMenu.Items.Add("Toggle Visible", null, (s, e) => ToggleVisible());
                 itemMenu.Items.Add("Delete", null, (s, e) => deleted?.Invoke(this));
-            }
 
-            MouseDown += (s, e) =>
-            {
-                if (e.Button == MouseButtons.Right && layer.type != LayerType.EVENT)
+                MouseDown += (s, e) =>
                 {
-                    itemMenu.Show(this, PointToClient(Cursor.Position));
-                }
-                Console.WriteLine(layer.imageIndex);
-                clicked.Invoke(this);
-            };
+                    if (e.Button == MouseButtons.Right)
+                    {
+                        itemMenu.Show(this, PointToClient(Cursor.Position));
+                    }
 
-            switch (layer.type)
-            {
-                case LayerType.NORMAL:
-                    color = ColorManager.ApplyGradient(ColorManager.AnimaxGradients.LAYER_NORMAL, this.ClientRectangle);
-                    break;
-                case LayerType.POINT:
-                    color = ColorManager.ApplyGradient(ColorManager.AnimaxGradients.LAYER_POINT, this.ClientRectangle);
-                    break;
-                case LayerType.EVENT:
-                    color = ColorManager.ApplyGradient(ColorManager.AnimaxGradients.LAYER_EVENT, this.ClientRectangle);
-                    break;
+                    clicked.Invoke(this);
+                };
             }
+            else
+            {
+                layer.name = "Events";
+                MouseDown += (s, e) => clicked.Invoke(this); 
+            }
+            color = layer switch
+            {
+                NormalLayer => ColorManager.ApplyGradient(ColorManager.AnimaxGradients.LAYER_NORMAL, this.ClientRectangle),
+                PointLayer => ColorManager.ApplyGradient(ColorManager.AnimaxGradients.LAYER_POINT, this.ClientRectangle),
+                EventLayer => ColorManager.ApplyGradient(ColorManager.AnimaxGradients.LAYER_EVENT, this.ClientRectangle),
+                _ => ColorManager.ApplyGradient(ColorManager.AnimaxGradients.LAYER_NORMAL, this.ClientRectangle),
+            };
         }
 
         public void ToggleVisible()
         {
-            layer.isVisible = !layer.isVisible;
-            changedVisibility?.Invoke(this);
+            switch (layer)
+            {
+                case NormalLayer normalLayer:
+                    normalLayer.visible = !normalLayer.visible;
+                    changedVisibility?.Invoke(this);
+                    break;
+                case PointLayer pointLayer:
+                    pointLayer.visible = !pointLayer.visible;
+                    changedVisibility?.Invoke(this);
+                    break;
+            }
+            _mediator.animPreview.Invalidate();
             Invalidate();
         }
 
@@ -78,19 +87,17 @@ namespace Animax
         {
             base.OnPaint(e);
 
-            Brush selected = SystemBrushes.Highlight;
-            Brush toRender = isSelected ? selected : layer.isVisible ? color : Brushes.Gray;
+            Brush toRender = isSelected ? SystemBrushes.Highlight : layer.visible ? color : Brushes.Gray;
             e.Graphics.FillRectangle(toRender, this.ClientRectangle);
 
             Rectangle rect = this.ClientRectangle;
-            Rectangle itemRec = new Rectangle(rect.X, rect.Y, rect.Width-1, rect.Height-1);
-            Rectangle labeRec = new Rectangle(itemRec.X + 4, itemRec.Y + itemRec.Height / 3, itemRec.Width - 4, itemRec.Height / 3);
+            Rectangle itemRec = new Rectangle(rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
+            Rectangle labeRec = new Rectangle(itemRec.X + 4, itemRec.Y + itemRec.Height / 4, itemRec.Width - 4, itemRec.Height / 2);
 
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisWord };
             e.Graphics.DrawString(layer.name, Font, (isSelected ? Brushes.White : Brushes.Black), labeRec, format);
 
             e.Graphics.DrawRectangle(Pens.Black, itemRec);
-
         }
     }
 }

@@ -25,11 +25,9 @@ namespace Animax
         public InstrumentPanel instPanel { get; set; }
         public TimelineMarker marker { get; set; }
         public FramePropertiesPanel propers { get; set; }
-        public ComboBox eventsBox { get; set; }
+        public EventPanel eventPanel { get; set; }
         public Main mainForm { get; set; }
         public ColorManager clrManager { get; set; }
-
-        public ImagePreviewPanel imagePanel = new ImagePreviewPanel();
 
         public void OnFrameSelectionUpdate(TimelineFramePanel panel)
         {
@@ -50,24 +48,22 @@ namespace Animax
                 foreach (var item2 in layerPanel?.items)
                     item2.Invalidate();
 
-                //Sprite Panel Set Up
-                Image imgToLoad = projectManager.GetLayerImage(layerItem.layer);
+                if (frameItem.frame is EventFrame ef)
+                    marker.frameIndex = ef.targetFrame;
+                else
+                    marker.frameIndex = framePanel.GetFrameIndex(frameItem);
 
-                marker.frameIndex = framePanel.GetFrameIndex(frameItem);
-
-                if (frameItem.frame.type == FrameType.NORMAL)
+                if (frameItem.frame is NormalFrame normalFrame)
                 {
-                    UpdateProperties((NormalFrame)frameItem.frame);
-                    spritePanel?.SetSpriteSheet(imgToLoad, (NormalFrame)frameItem.frame);
+                    UpdateProperties(normalFrame);
+                    spritePanel?.SetSpriteSheet(projectManager.GetLayerImage((NormalLayer)(framePanel.GetLayerOfTheFrame(frameItem).layer)), normalFrame);
                     propers.ChangeMode(FramePropertiesPanel.Mode.BOTH);
                 }
-                else if (frameItem.frame.type == FrameType.POINT)
+                else if (frameItem.frame is PointFrame pointFrame)
                 {
-                    UpdateProperties((PointFrame)frameItem.frame);
+                    UpdateProperties(pointFrame);
                     propers.ChangeMode(FramePropertiesPanel.Mode.FRAME);
                 }
-                else if (frameItem.frame.type == FrameType.EVENT)
-                    propers.ChangeMode(FramePropertiesPanel.Mode.NONE);
             }
             marker.Invalidate();
         }
@@ -79,6 +75,12 @@ namespace Animax
             animPreview?.SetCurrentAnimation((anim.selectedItem == null ? null : anim.selectedItem.animation));
             layerPanel?.UpdateLayers(anim.selectedItem == null ? null : anim.selectedItem.animation);
 
+            foreach (var item in animPanel.items)
+            {
+                if (item.isRenaming)
+                    item.FinishRename();
+            }
+
             OnLayerSelectionUpdate(layerPanel);
             framePanel.selectedItems = new();
             framePanel.fixedHeader.Invalidate();
@@ -87,14 +89,7 @@ namespace Animax
 
         public void OnLayerSelectionUpdate(TimelineLayerPanel lyr)
         {
-            if (animPanel?.selectedItem != null)
-            {
-                framePanel?.UpdateFrames(lyr.items, layerPanel);
-            }
-            else
-            {
-                framePanel?.UpdateFrames(null, layerPanel);
-            }
+            framePanel.UpdateFrames(lyr?.items);
         }
 
         private bool _editText = false;
@@ -158,42 +153,23 @@ namespace Animax
 
                 if (framePanel?.selectedItem != null)
                 {
-                    if (framePanel.selectedItem.frame.type != FrameType.EVENT)
+                    TransformFrame frame = (TransformFrame)framePanel.selectedItem.frame;
+                    if (frame is NormalFrame normalFrame)
                     {
-                        //Im too lazy to make this code more compact, so it'll just be two same instances of code :p
-                        //Maybe layer idk
-                        if (framePanel.selectedItem.frame.type == FrameType.NORMAL)
-                        {
-                            var frame = (NormalFrame)framePanel.selectedItem.frame;
-
-                            frame.position = new PointF(SafeParseInt(propers.elements.posX.Text), SafeParseInt(propers.elements.posY.Text));
-                            frame.rotation = SafeParseInt(propers.elements.rotation.Text);
-                            frame.scale = new Point(
-                                SafeParseInt(propers.elements.scaleX.Text, 100, -1000, 1000),
-                                SafeParseInt(propers.elements.scaleY.Text, 100, -1000, 1000)
-                            );
-
-                            frame.visible = propers.elements.visibility.Checked;
-                            frame.interpolated = propers.elements.interpolated.Checked;
-                        }
-
-                        else if (framePanel.selectedItem.frame.type == FrameType.POINT)
-                        {
-                            var frame = (PointFrame)framePanel.selectedItem.frame;
-
-                            frame.position = new PointF(SafeParseInt(propers.elements.posX.Text), SafeParseInt(propers.elements.posY.Text));
-                            frame.rotation = SafeParseInt(propers.elements.rotation.Text);
-                            frame.scale = new Point(
-                                SafeParseInt(propers.elements.scaleX.Text, 100, -1000, 1000),
-                                SafeParseInt(propers.elements.scaleY.Text, 100, -1000, 1000)
-                            );
-
-                            frame.visible = propers.elements.visibility.Checked;
-                            frame.interpolated = propers.elements.interpolated.Checked;
-                        }
-
-                        animPanel.Invalidate();
+                        normalFrame.imagePreview.savedImage = spritePanel.GetSelectedImage();
+                        normalFrame.imagePreview.relativePivot = spritePanel.GetSelectePivot();
                     }
+
+                    frame.position = new Point(SafeParseInt(propers.elements.posX.Text), SafeParseInt(propers.elements.posY.Text));
+                    frame.rotation = SafeParseInt(propers.elements.rotation.Text);
+                    frame.scale = new Point(
+                        SafeParseInt(propers.elements.scaleX.Text, 100, -1000, 1000),
+                        SafeParseInt(propers.elements.scaleY.Text, 100, -1000, 1000)
+                    );
+
+                    frame.visible = propers.elements.visibility.Checked;
+                    frame.interpolated = propers.elements.interpolated.Checked;
+                    animPanel.Invalidate();
                 }
 
                 MarkProjectModified();
@@ -256,23 +232,6 @@ namespace Animax
             imgPan.Show();
         }
 
-        public void RemoveAllEventFrames(FrameEvent ev)
-        {
-            foreach (Animation anim in mainForm.animations)
-            {
-                foreach (Layer lyr in anim.layers)
-                {
-                    foreach (Frame frm in lyr.frames)
-                    {
-                        if (frm.type == FrameType.EVENT)
-                        {
-                            lyr.frames.Remove(frm);
-                            layerPanel.UpdateLayers(anim);
-                        }
-                    }
-                }
-            }
-        }
         public void UpdateTitle()
         {
             string modified = projectManager.isModified ? "*" : "";

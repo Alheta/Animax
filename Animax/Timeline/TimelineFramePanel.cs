@@ -113,9 +113,12 @@ namespace Animax
             {
                 foreach (var item in selectedItems)
                 {
-                    item.frame.duration = Math.Max(1, item.frame.duration + frameDuration);
-                    item.Invalidate();
-                    LayoutItems();
+                    if (item.frame is TransformFrame frame)
+                    {
+                        frame.duration = Math.Max(1, frame.duration + frameDuration);
+                        item.Invalidate();
+                        LayoutItems();
+                    }
                 }
             }
         }
@@ -124,13 +127,26 @@ namespace Animax
         {
             foreach (var layerItem in _mediator.layerPanel.items)
             {
-                if (layerItem.layer.frames.Contains(frame.frame))
+                if ((layerItem.layer).GetFrames().Contains(frame.frame))
                     return layerItem;
             }
             return null;
         }
 
-        public void UpdateFrames(List<TimelineLayerItem> layers = null, TimelineLayerPanel lyrPanel = null)
+        private TimelineFrameItem CreateFrameItem(Frame frame, TimelineLayerItem layer)
+        {
+            TimelineFrameItem item = new TimelineFrameItem(frame, layer, _mediator);
+
+            item.clicked += OnItemClicked;
+            item.deleted += OnItemDeleted;
+            item.deletedAll += DeleteAllSelection;
+            layerContent.Controls.Add(item);
+            items.Add(item);
+
+            return item;
+        }
+
+        public void UpdateFrames(List<TimelineLayerItem> layers = null)
         {
             selectedItems = new();
 
@@ -141,7 +157,7 @@ namespace Animax
             }
             items.Clear();
 
-            if (layers == null || lyrPanel == null)
+            if (layers == null || _mediator.layerPanel == null)
             {
                 Invalidate();
                 layerContent.Invalidate();
@@ -152,26 +168,27 @@ namespace Animax
 
             foreach (TimelineLayerItem lyr in layers)
             {
-                foreach (Frame frm in lyr.layer.frames)
+                foreach (Frame frm in lyr.layer.GetFrames().ToList())
                 {
-                    TimelineFrameItem item = new TimelineFrameItem(frm, lyr, _mediator);
-
-                    item.clicked += OnItemClicked;
-                    item.deleted += OnItemDeleted;
-                    item.deletedAll += DeleteAllSelection;
-                    layerContent.Controls.Add(item);
-                    items.Add(item);
+                    CreateFrameItem(frm, lyr);
                 }
             }
 
-            _mediator.layerPanel = lyrPanel;
             LayoutItems();
 
-            _mediator.marker.animationDuration = _mediator.layerPanel.selectedAnimation.duration;
+            _mediator.marker.animationDuration = _mediator.layerPanel.selectedAnimation == null ? 1 : _mediator.layerPanel.selectedAnimation.duration;
 
             Invalidate();
             layerContent.Invalidate();
 
+        }
+
+        public NormalFrame GetSelectedNormalFrame()
+        {
+            if (selectedItem != null && selectedItem.frame is NormalFrame frame)
+                return frame;
+
+            return null;
         }
 
         public void AddFrame(TimelineLayerItem layer, bool copyCat)
@@ -179,51 +196,49 @@ namespace Animax
             if (layer == null)
                 return;
 
-            Frame frame = layer.layer.type switch
-            {
-                LayerType.NORMAL => new NormalFrame(1)
-                {
-                    selection = new Rectangle(0, 0, 32, 32),
-                    pivotPos = new PointF(0, 0),
-                    scale = new PointF(100, 100),
-                    rotation = 0f
-                },
-                LayerType.POINT => new PointFrame(1)
-                {
-                    position = new PointF(0, 0),
-                    scale = new PointF(100, 100),
-                    rotation = 0f
-                },
-                _ => throw new ArgumentException("Unknown layer type")
-            };
+            Frame frame = null;
 
-            if (layer.layer.type != LayerType.EVENT)
+            switch (layer.layer)
             {
+                case NormalLayer normalLayer:
+                    frame = new NormalFrame(1)
+                    {
+                        selection = new Rectangle(0, 0, 32, 32),
+                        pivotPos = new Point(0, 0),
+                        scale = new Point(100, 100),
+                        rotation = 0
+                    };
 
-                if (frame is NormalFrame normalFrame && layer.layer.assignedImage != null)
-                {
-                    _mediator.spritePanel.SetSpriteSheet(layer.layer.assignedImage.Image, (NormalFrame)frame);
-                    normalFrame.UpdatePreview(layer.layer.assignedImage.Image);
-                }
-                else
-                {
+                    _mediator.spritePanel.SetSpriteSheet(normalLayer.assignedImage?.Image, (NormalFrame)frame);
+                    ((NormalFrame)frame).UpdatePreview(normalLayer.assignedImage?.Image);
+                    normalLayer.frames.Add((NormalFrame)frame);
+                    break;
+
+                case PointLayer pointLayer:
+                    frame = new PointFrame(1)
+                    {
+                        position = new Point(0, 0),
+                        scale = new Point(100, 100),
+                        rotation = 0
+                    };
+                    pointLayer.frames.Add((PointFrame)frame);
                     _mediator.spritePanel.ClearSpriteSheet();
-                }
+                    break;
+
+                case EventLayer eventLayer:
+                    foreach (EventFrame ef in eventLayer.frames)
+                        if (ef.targetFrame == _mediator.marker.frameIndex) return;
+
+                    frame = new EventFrame(_mediator.marker.frameIndex, 0);
+                    eventLayer.frames.Add((EventFrame)frame);
+                    break;
+
+                default:
+                    throw new ArgumentException("Unknown layer type");
             }
-            else
-            {
-                return;
-            }
 
-            TimelineFrameItem item = new TimelineFrameItem(frame, layer, _mediator);
+            TimelineFrameItem item = CreateFrameItem(frame, layer);
 
-            item.clicked += OnItemClicked;
-            item.deleted += OnItemDeleted;
-            item.deletedAll += DeleteAllSelection;
-            layerContent.Controls.Add(item);
-            items.Add(item);
-
-            layer.layer.frames.Add(frame);
 
             item.Invalidate();
             _mediator.marker.Invalidate();
@@ -394,7 +409,18 @@ namespace Animax
             layerContent.Controls.Remove(item);
             items.Remove(item);
 
-            layer?.layer.frames.Remove(item.frame);
+            switch (layer?.layer)
+            {
+                case NormalLayer nl:
+                    nl.frames.Remove((NormalFrame)item.frame);
+                    break;
+                case PointLayer pl:
+                    pl.frames.Remove((PointFrame)item.frame);
+                    break;
+                case EventLayer el:
+                    el.frames.Remove((EventFrame)item.frame);
+                    break;
+            }
 
 
             if (selectedItem == item) selectedItem = null;
@@ -462,7 +488,7 @@ namespace Animax
 
         private List<TimelineFrameItem> GetFramesForLayer(TimelineLayerItem layer)
         {
-            return items.Where(item => layer.layer.frames.Contains(item.frame)).ToList();
+            return items.Where(item => layer.layer.GetFrames().Contains(item.frame)).ToList();
         }
         public void LayoutItems()
         {
@@ -476,7 +502,7 @@ namespace Animax
                 var layer = layerView.layer;
 
                 var framesForLayer = items
-                    .Where(item => layer.frames.Contains(item.frame))
+                    .Where(item => layer.GetFrames().Contains(item.frame))
                     .ToList();
 
                 int y = layerView.Location.Y;
@@ -484,15 +510,25 @@ namespace Animax
 
                 foreach (var frameView in framesForLayer)
                 {
-                    int duration = Math.Max(1, frameView.frame.duration);
+                    int duration = Math.Max(1, frameView.frame.GetDuration());
                     int newWidth = _mediator.layerPanel.frameWidth * duration;
 
-                    if (frameView.Width != newWidth || frameView.Location.X != currentX || frameView.Location.Y != y)
+                    if (layer is EventLayer && frameView.frame is EventFrame eFrame)
                     {
                         frameView.SuspendLayout();
                         frameView.Width = newWidth;
-                        frameView.Location = new Point(currentX, y);
+                        frameView.Location = new Point(frameView.Width * eFrame.targetFrame, y);
                         frameView.ResumeLayout();
+                    }
+                    else
+                    {
+                        if (frameView.Width != newWidth || frameView.Location.X != currentX || frameView.Location.Y != y)
+                        {
+                            frameView.SuspendLayout();
+                            frameView.Width = newWidth;
+                            frameView.Location = new Point(currentX, y);
+                            frameView.ResumeLayout();
+                        }
                     }
 
                     currentX += frameView.Width;
@@ -622,46 +658,32 @@ namespace Animax
         public int GetFrameIndex(TimelineFrameItem frame)
         {
             TimelineLayerItem layer = GetLayerOfTheFrame(frame);
+            if (layer?.layer == null) return 0;
 
             int index = 0;
-            foreach (Frame frm in layer.layer.frames)
+            if (layer.layer is EventLayer)
             {
-                if (frm != frame.frame)
-                    index += frm.duration;
-                else
-                    return index;
+                return index;
+            }
+            else
+            {
+                foreach (TransformFrame frm in layer.layer.GetFrames())
+                {
+                    if (frm != frame.frame)
+                        index += frm.duration;
+                    else
+                        return index;
+                }
             }
             return index;
         }
 
         public (Frame currentFrame, Frame nextFrame, float progress) GetCurrentFrameData(Layer layer, int markerIndex)
         {
-            if (layer == null || layer.frames.Count == 0)
+            if (layer == null)
                 return (null, null, 0);
 
-            int accumulatedDuration = 0;
-            Frame lastFrame = null;
-            if (layer.frames.Count > 0)
-            {
-                lastFrame = layer.frames[layer.frames.Count - 1];
-            }
-
-            for (int i = 0; i < layer.frames.Count; i++)
-            {
-                var frame = layer.frames[i];
-                int frameDuration = Math.Max(1, frame.duration);
-
-                if (markerIndex < accumulatedDuration + frameDuration)
-                {
-                    float progress = (float)(markerIndex - accumulatedDuration) / frameDuration;
-                    Frame nextFrame = (i < layer.frames.Count - 1) ? layer.frames[i + 1] : null;
-                    return (frame, nextFrame, progress);
-                }
-
-                accumulatedDuration += frameDuration;
-            }
-
-            return (lastFrame, null, 0);
+            return layer.GetCurrentFrameData(markerIndex);
         }
 
         public void SetFramesOnIndex(int index, bool forced)

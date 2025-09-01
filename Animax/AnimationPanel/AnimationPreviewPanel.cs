@@ -86,55 +86,53 @@ namespace Animax
             foreach (var frame in _mediator.framePanel.currentFrames)
             {
                 //if (frame.Value.type == FrameType.NORMAL)
-                if (frame.Key.isVisible && frame.Value != null)
+                if (frame.Value != null && frame.Key.visible)
                 {
                     GraphicsState frameState = e.Graphics.Save();
-                    if (frame.Value.type == FrameType.NORMAL)
+                    if (frame.Value is NormalFrame normFrame)
                     {
-                        var frm = (NormalFrame)frame.Value;
-                        if (frm.imagePreview.savedImage != null && frm.visible)
+                        if (normFrame.imagePreview.savedImage != null && normFrame.visible)
                         {
                             e.Graphics.TranslateTransform(
-                                frm.position.X,
-                                -frm.position.Y);
+                                normFrame.position.X,
+                                -normFrame.position.Y);
 
-                            e.Graphics.RotateTransform(frm.rotation);
+                            e.Graphics.RotateTransform(normFrame.rotation);
 
-                            float scaleX = frm.scale.X / 100f;
-                            float scaleY = frm.scale.Y / 100f;
+                            float scaleX = normFrame.scale.X / 100f;
+                            float scaleY = normFrame.scale.Y / 100f;
                             e.Graphics.ScaleTransform(
                                 scaleX == 0 ? 0.01f : scaleX,
                                 scaleY == 0 ? 0.01f : scaleY);
 
                             e.Graphics.TranslateTransform(
-                                frm.imagePreview.relativePivot.X,
-                                frm.imagePreview.relativePivot.Y);
+                                -normFrame.imagePreview.relativePivot.X,
+                                -normFrame.imagePreview.relativePivot.Y);
 
                             e.Graphics.DrawImage(
-                                frm.imagePreview.savedImage,
+                                normFrame.imagePreview.savedImage,
                                 0, 0,
-                                frm.imagePreview.savedImage.Width,
-                                frm.imagePreview.savedImage.Height);
+                                normFrame.imagePreview.savedImage.Width,
+                                normFrame.imagePreview.savedImage.Height);
                         }
                     }
-                    else if (frame.Value.type == FrameType.POINT)
+                    else if (frame.Value is PointFrame pointFrame)
                     {
-                        var frm = (PointFrame)frame.Value;
-                        if (frm.visible)
+                        if (pointFrame.visible)
                         {
                             e.Graphics.TranslateTransform(
-                             frm.position.X,
-                             -frm.position.Y);
+                             pointFrame.position.X,
+                             -pointFrame.position.Y);
 
-                            e.Graphics.RotateTransform(frm.rotation);
+                            e.Graphics.RotateTransform(pointFrame.rotation);
 
-                            float scaleX = frm.scale.X / 100f;
-                            float scaleY = frm.scale.Y / 100f;
+                            float scaleX = pointFrame.scale.X / 100f;
+                            float scaleY = pointFrame.scale.Y / 100f;
                             e.Graphics.ScaleTransform(
                                 scaleX == 0 ? 0.01f : scaleX,
                                 scaleY == 0 ? 0.01f : scaleY);
 
-                            e.Graphics.DrawEllipse(new Pen(Brushes.Lime, 5f) , new RectangleF(0 - frm.scale.X / 2, 0 - frm.scale.Y / 2, frm.scale.X, frm.scale.Y));
+                            e.Graphics.DrawEllipse(new Pen(Brushes.Lime, 5f) , new RectangleF(0 - pointFrame.scale.X / 2, 0 - pointFrame.scale.Y / 2, pointFrame.scale.X, pointFrame.scale.Y));
                         }
                     }
                     e.Graphics.Restore(frameState);

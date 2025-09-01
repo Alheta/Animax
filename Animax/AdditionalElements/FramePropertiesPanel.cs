@@ -106,6 +106,7 @@ namespace Animax.HandyStuff
                 Text = ""
             };
             txt.KeyPress += propertiesFields_KeyPress;
+            txt.KeyDown += propertiesFields_KeyDown;
             txt.TextChanged += _mediator.UpdateValuesFromTextBoxes;
 
             Controls.Add(txt);
@@ -166,6 +167,15 @@ namespace Animax.HandyStuff
                 !(e.KeyChar == '-' && txt.SelectionStart == 0 && !txt.Text.Contains("-")))
             {
                 e.Handled = true;
+            }
+        }
+
+        private void propertiesFields_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
             }
         }
 
