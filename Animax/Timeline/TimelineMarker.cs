@@ -24,6 +24,7 @@ namespace Animax
                     _mediator.framePanel.SetFramesOnIndex(_mediator.framePanel.currentFrameIndex, false);
                 }
                 RefreshPos();
+                Console.WriteLine(_frameIndex);
             }
         }
         private int _frameIndex = 0;
@@ -39,30 +40,8 @@ namespace Animax
             panelHeight = _mediator.framePanel.fixedHeader.Height;
             Width = frameWidth;
             Height = panelHeight;
-
-            _mediator.framePanel.Controls.Add(this);
-            this.BringToFront();
-            this.Location = new Point(0, 0);
         }
 
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                cp.ExStyle |= 0x00000020; //WS_EX_TRANSPARENT
-                return cp;
-            }
-        }
-
-        protected void InvalidateEx()
-        {
-            if (Parent == null)
-                return;
-
-            Rectangle rc = new Rectangle(this.Location, this.Size);
-            Parent.Invalidate(rc, true);
-        }
         protected override void OnPaintBackground(PaintEventArgs pevent){ }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -102,26 +81,15 @@ namespace Animax
             base.WndProc(ref m);
         }
 
-        //protected override void OnParentChanged(EventArgs e)
-        //{
-        //    base.OnParentChanged(e);
-        //    if (Parent != null)
-        //    {
-        //        Parent.SizeChanged += (s, args) => {
-        //            Height = Parent.ClientSize.Height;
-        //        };
-        //    }
-        //}
-
         private void UpdatePosFromIndex()
         {
-            this.Left = frameIndex * frameWidth;
+            this.Left = (frameIndex * frameWidth);
         }
 
         public void RefreshPos()
         {
             UpdatePosFromIndex();
-            this.Invalidate();
+            Invalidate();
         }
     }
 }

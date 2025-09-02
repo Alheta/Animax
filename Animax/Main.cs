@@ -36,8 +36,7 @@ namespace Animax
             _mediator = new Mediator();
 
             projectManager = new ProjectManager();
-            FramePropertiesPanel framePropertiesPanel1 = new FramePropertiesPanel(_mediator);
-            
+
             _mediator.projectManager = projectManager;
             _mediator.framePanel = timelineFramePanel1;
             _mediator.layerPanel = timelineLayerPanel1;
@@ -45,7 +44,11 @@ namespace Animax
             _mediator.animPreview = animationPreviewPanel1;
             _mediator.animPanel = animationPanel1;
             _mediator.instPanel = instrumentPanel1;
-            _mediator.marker = new TimelineMarker(_mediator);
+
+            FramePropertiesPanel framePropertiesPanel1 = new FramePropertiesPanel(_mediator);
+            TimelineMarker timelineMarker = new TimelineMarker(_mediator);
+
+            _mediator.marker = timelineMarker;
             _mediator.propers = framePropertiesPanel1;
             _mediator.mainForm = this;
             _mediator.clrManager = new HandyStuff.ColorManager();
@@ -61,6 +64,8 @@ namespace Animax
             eventPanel1._mediator = _mediator;
 
             spriteSheetPanel1.Controls.Add(framePropertiesPanel1);
+            timelineFramePanel1.fixedHeader.Controls.Add(timelineMarker);
+            timelineMarker.BringToFront();
             framePropertiesPanel1.Dock = DockStyle.Right;
 
 

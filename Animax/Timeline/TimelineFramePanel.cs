@@ -41,6 +41,8 @@ namespace Animax
         private int _targetFPS = 30;
         private System.Windows.Forms.Timer animationTimer;
 
+        public int totalContentWidth = 0;
+
 
         private List<TimelineFrameItem> draggingFrames = new();
 
@@ -77,9 +79,12 @@ namespace Animax
 
             layerContent = new Panel();
             layerContent.Dock = DockStyle.Fill;
-            layerContent.AutoScroll = false;
+            layerContent.AutoScroll = true;
+            layerContent.Scroll += Scroller_Scroll;
             layerContent.Paint += OnContentPaint;
             layerContent.DoubleBuffered(true);
+
+            layerContent.VerticalScroll.Visible = false;
 
             layerContent.Leave += LayerMouseLeave;
             layerContent.MouseDown += LayerMouseDown;
@@ -91,15 +96,10 @@ namespace Animax
             animationTimer.Tick += AnimationUpdate;
             TargetFPS = 30;
 
-            scroller = new HScrollBar();
-            scroller.Dock = DockStyle.Bottom;
-            scroller.BringToFront();
-
             layerContent.Controls.Add(scroller);
 
             Controls.Add(layerContent);
             Controls.Add(fixedHeader);
-
         }
 
         protected override void OnInvalidated(InvalidateEventArgs e)
@@ -241,11 +241,7 @@ namespace Animax
 
 
             item.Invalidate();
-            _mediator.marker.Invalidate();
             LayoutItems();
-
-            Invalidate();
-            layerContent.Invalidate();
 
             _mediator.animPreview.Invalidate();
 
@@ -261,37 +257,27 @@ namespace Animax
 
         private void OnHeaderPaint(object sender, PaintEventArgs e)
         {
-            base.OnPaint(e);
-
-            e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(220, 220, 220)), e.ClipRectangle);
-
+            e.Graphics.TranslateTransform(layerContent.AutoScrollPosition.X, layerContent.AutoScrollPosition.Y);
             DrawFrameRuler(e);
-
-            if (_mediator?.animPanel.selectedItem == null) return;
-
-            Rectangle durationRect = new Rectangle(0, 0, _mediator.layerPanel.frameWidth * _mediator.animPanel.selectedItem.animation.duration, fixedHeader.Height);
-            durationHandle = new Rectangle(_mediator.layerPanel.frameWidth * _mediator.animPanel.selectedItem.animation.duration - 3, 0, 6, fixedHeader.Height);
-
-            e.Graphics.FillRectangle(ColorManager.ApplyGradient(ColorManager.AnimaxGradients.TIMELINE_DURATION, durationRect), durationRect);
-            e.Graphics.FillRectangle(Brushes.Black, durationHandle);
         }
 
         private void OnContentPaint(object sender, PaintEventArgs e)
         {
-            base.OnPaint(e);
-
+            e.Graphics.TranslateTransform(layerContent.AutoScrollPosition.X, layerContent.AutoScrollPosition.Y);
             DrawEmptyTimeline(e); 
         }
 
         private void DrawFrameRuler(PaintEventArgs e)
         {
+            e.Graphics.FillRectangle(new SolidBrush(Color.FromArgb(220, 220, 220)), e.ClipRectangle); 
+
             int startX = 0;
             int y = 0;
             int height = fixedHeader.Height;
 
             int frameWidth = _mediator != null ? _mediator.layerPanel.frameWidth : 20;
 
-            int visibleWidth = this.DisplayRectangle.Width;
+            int visibleWidth = this.DisplayRectangle.Width - layerContent.AutoScrollPosition.X;
             int maxVisibleFrames = Math.Max(30, (visibleWidth - 20) / frameWidth + 5);
             Font font = new Font("Segoe UI", 8);
             Brush brush = Brushes.Black;
@@ -325,6 +311,14 @@ namespace Animax
 
             e.Graphics.DrawLine(Pens.Black, new Point(fixedHeader.Left, fixedHeader.Bottom - 1), new Point(fixedHeader.Right, fixedHeader.Bottom - 1));
 
+
+            if (_mediator?.animPanel.selectedItem == null) return;
+
+            Rectangle durationRect = new Rectangle(0, 0, _mediator.layerPanel.frameWidth * _mediator.animPanel.selectedItem.animation.duration, fixedHeader.Height);
+            durationHandle = new Rectangle(_mediator.layerPanel.frameWidth * _mediator.animPanel.selectedItem.animation.duration - 3, 0, 6, fixedHeader.Height);
+
+            e.Graphics.FillRectangle(ColorManager.ApplyGradient(ColorManager.AnimaxGradients.TIMELINE_DURATION, durationRect), durationRect);
+            e.Graphics.FillRectangle(Brushes.Black, durationHandle);
         }
 
         private void DrawEmptyTimeline(PaintEventArgs e)
@@ -333,7 +327,7 @@ namespace Animax
                 return;
 
             int frameWidth = _mediator.layerPanel.frameWidth;
-            int visibleWidth = this.DisplayRectangle.Width;
+            int visibleWidth = this.DisplayRectangle.Width - layerContent.AutoScrollPosition.X;
             int maxVisibleFrames = Math.Max(30, (visibleWidth - 20) / frameWidth + 5);
 
 
@@ -497,6 +491,8 @@ namespace Animax
 
             layerContent.SuspendLayout();
 
+            int maxX = 0;
+
             foreach (var layerView in _mediator.layerPanel.items)
             {
                 var layer = layerView.layer;
@@ -506,7 +502,7 @@ namespace Animax
                     .ToList();
 
                 int y = layerView.Location.Y;
-                int currentX = 0;
+                int currentX = layerContent.Location.X + layerContent.AutoScrollPosition.X;
 
                 foreach (var frameView in framesForLayer)
                 {
@@ -530,11 +526,13 @@ namespace Animax
                             frameView.ResumeLayout();
                         }
                     }
+                    maxX = Math.Max(currentX, maxX);
 
                     currentX += frameView.Width;
                 }
             }
-            layerContent.Invalidate();
+
+            Invalidate(true);
             layerContent.ResumeLayout();
         }
 
@@ -737,7 +735,7 @@ namespace Animax
             }
             else
             {
-                int currentFrame = e.X / _mediator.layerPanel.frameWidth;
+                int currentFrame = (e.X - layerContent.AutoScrollPosition.X) / _mediator.layerPanel.frameWidth;
                 _mediator.marker.frameIndex = currentFrame;
                 _lastFrameIndex = currentFrame;
                 _isDragging = true;
@@ -751,7 +749,7 @@ namespace Animax
 
             if (_isDragging)
             {
-                int currentFrame = e.X / _mediator.layerPanel.frameWidth;
+                int currentFrame = (e.X - layerContent.AutoScrollPosition.X) / _mediator.layerPanel.frameWidth;
                 if (currentFrame != _lastFrameIndex)
                 {
                     _mediator.marker.frameIndex = currentFrame;
@@ -760,7 +758,7 @@ namespace Animax
             }
             else if (_isDraggingDuration)
             {
-                int duration = Math.Max(1, e.X / _mediator.layerPanel.frameWidth);
+                int duration = Math.Max(1, (e.X - layerContent.AutoScrollPosition.X) / _mediator.layerPanel.frameWidth);
                 if (duration != _mediator.animPanel.selectedItem.animation.duration)
                 {
                     _mediator.animPanel.selectedItem.animation.duration = duration;
@@ -779,6 +777,17 @@ namespace Animax
 
             if (_isDraggingDuration)
                 _isDraggingDuration = false;
+        }
+
+        public void Scroller_Scroll(object sender, ScrollEventArgs e)
+        {
+            fixedHeader.HorizontalScroll.Visible = false;
+            fixedHeader.VerticalScroll.Visible = false;
+
+            fixedHeader.HorizontalScroll.Maximum = layerContent.HorizontalScroll.Maximum;
+            fixedHeader.HorizontalScroll.Value = layerContent.HorizontalScroll.Value;
+            fixedHeader.Invalidate(true);
+            layerContent.Invalidate(true);
         }
     }
 }
